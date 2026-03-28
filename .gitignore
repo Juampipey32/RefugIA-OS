@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+venv/
+.venv/
+dist/
+build/
+
+# ChromaDB vectorstore (se regenera con indexador.py)
+src/db/chroma*
+src/db/*.sqlite3
+src/db/*.bin
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Modelos descargados (HuggingFace cache)
+.cache/
