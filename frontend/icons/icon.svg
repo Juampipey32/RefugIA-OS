@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="64" fill="#0a0a0a"/>
+  <rect x="16" y="16" width="480" height="480" rx="48" fill="none" stroke="#ffb000" stroke-width="4"/>
+  <!-- Shield -->
+  <path d="M256 80 L380 140 L380 280 Q380 380 256 432 Q132 380 132 280 L132 140 Z"
+        fill="none" stroke="#ffb000" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M256 100 L360 152 L360 272 Q360 360 256 408 Q152 360 152 272 L152 152 Z"
+        fill="#0a0a0a"/>
+  <!-- R text -->
+  <text x="210" y="290" font-family="monospace" font-weight="bold" font-size="140" fill="#ffb000">R</text>
+  <!-- IA text -->
+  <text x="290" y="290" font-family="monospace" font-weight="bold" font-size="80" fill="#33ff33">IA</text>
+  <!-- Bottom text -->
+  <text x="256" y="380" font-family="monospace" font-size="28" fill="#ffb000" text-anchor="middle">OS</text>
+</svg>

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# ============================================================
+# RefugIA OS — CLI Entry Point
+# ============================================================
+# Thin wrapper that activates the venv and runs src/cli.py
+# Usage: ./refugia start | index | status | doctor
+# ============================================================
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+VENV_DIR="$SCRIPT_DIR/venv"
+
+# Check venv exists
+if [ ! -d "$VENV_DIR" ]; then
+    echo "Error: Virtual environment not found at $VENV_DIR"
+    echo "Run ./install.sh first to set up RefugIA OS."
+    exit 1
+fi
+
+# Activate venv and run CLI
+source "$VENV_DIR/bin/activate"
+python "$SCRIPT_DIR/src/cli.py" "$@"
