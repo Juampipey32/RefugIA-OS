@@ -367,6 +367,36 @@ async def serve_frontend():
         return {"mensaje": "Frontend no encontrado. Coloca index.html en /frontend/"}
 
 
+# --- PWA: Service Worker, Manifest, Icons ---
+
+@app.get("/manifest.json")
+async def serve_manifest():
+    """Sirve el manifest PWA."""
+    path = FRONTEND_DIR / "manifest.json"
+    if path.exists():
+        return FileResponse(str(path), media_type="application/manifest+json")
+    return {"error": "manifest.json not found"}
+
+
+@app.get("/sw.js")
+async def serve_sw():
+    """Sirve el Service Worker (debe estar en la raíz para scope '/')."""
+    path = FRONTEND_DIR / "sw.js"
+    if path.exists():
+        return FileResponse(str(path), media_type="application/javascript")
+    return {"error": "sw.js not found"}
+
+
+@app.get("/icons/{filename}")
+async def serve_icon(filename: str):
+    """Sirve los iconos de la PWA."""
+    path = FRONTEND_DIR / "icons" / filename
+    if path.exists():
+        media_type = "image/svg+xml" if filename.endswith(".svg") else "image/png"
+        return FileResponse(str(path), media_type=media_type)
+    return {"error": f"Icon {filename} not found"}
+
+
 # ============================================================
 #  PUNTO DE ENTRADA
 # ============================================================

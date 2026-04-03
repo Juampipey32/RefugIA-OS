@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RefugIA OS — Sistema de Supervivencia</title>
     <meta name="description" content="Sistema operativo de supervivencia offline con IA local">
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="RefugIA">
+    <link rel="apple-touch-icon" href="/icons/icon.svg">
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
     <style>
@@ -168,6 +177,12 @@
         @media (max-width: 768px) {
             .divider { display: none; }
             .tabs { display: flex; }
+            .app { padding-bottom: env(safe-area-inset-bottom, 0); }
+            .header { padding: 8px max(16px, env(safe-area-inset-left, 16px)); }
+            .chat-input-area input { font-size: 16px; /* prevent zoom on iOS */ }
+            .chat-input-area button { min-height: 44px; min-width: 64px; font-size: 14px; }
+            .tab { min-height: 44px; font-size: 14px; }
+            .inv-controls button { min-height: 44px; font-size: 13px; }
         }
         @media (min-width: 769px) {
             .tabs { display: none; }
@@ -199,7 +214,10 @@
     <div class="app" id="app" style="display:none">
         <header class="header">
             <div class="logo">REFUG<span>IA</span> OS</div>
-            <div class="status-badge" id="statusBadge">OFFLINE</div>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <button id="installBtn" style="display:none;background:transparent;border:1px solid var(--green);color:var(--green);padding:3px 10px;font-family:var(--font-mono);font-size:11px;cursor:pointer;border-radius:3px;text-transform:uppercase;letter-spacing:1px;" onclick="installPWA()">Install</button>
+                <div class="status-badge" id="statusBadge">OFFLINE</div>
+            </div>
         </header>
         <nav class="tabs">
             <button class="tab active" id="tabChat" onclick="switchTab('chat')">💬 Chat IA</button>
@@ -258,8 +276,9 @@
 //  RefugIA OS — Frontend Logic
 // ============================================================
 
-const API_URL = 'http://127.0.0.1:8000';
+const API_URL = '';  // Relative URLs — works from any host/IP
 let backendOnline = false;
+let deferredInstallPrompt = null;
 
 // --- Respuestas de simulación (cuando el backend no responde) ---
 const RESPUESTAS_SIM = {
@@ -462,6 +481,32 @@ function modInventario(tipo, delta) {
 
 // Init
 document.addEventListener('DOMContentLoaded', renderInventario);
+
+// ============================================================
+//  PWA: Service Worker & Install Prompt
+// ============================================================
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    document.getElementById('installBtn').style.display = 'inline-block';
+});
+
+function installPWA() {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.then(() => {
+        deferredInstallPrompt = null;
+        document.getElementById('installBtn').style.display = 'none';
+    });
+}
+
+window.addEventListener('appinstalled', () => {
+    document.getElementById('installBtn').style.display = 'none';
+});
 
 // ============================================================
 //  BOOT

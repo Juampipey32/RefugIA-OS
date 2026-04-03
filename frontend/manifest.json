@@ -1,0 +1,20 @@
+{
+  "name": "RefugIA OS — Survival Operating System",
+  "short_name": "RefugIA",
+  "description": "Offline survival AI assistant. When the grid falls, knowledge survives.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#0a0a0a",
+  "background_color": "#0a0a0a",
+  "lang": "es",
+  "categories": ["utilities", "education"],
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
