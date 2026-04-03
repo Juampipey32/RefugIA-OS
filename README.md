@@ -17,7 +17,43 @@
 
 ---
 
+## Prerequisites — Before You Start
+
+You'll run RefugIA from a **Terminal** — a text window where you type commands. Here's how to open it:
+
+| OS | How to open the Terminal |
+|---|---|
+| **macOS** | Press `Cmd + Space`, type **Terminal**, hit Enter |
+| **Linux** | Press `Ctrl + Alt + T` or search **Terminal** in your apps |
+| **Windows** | Open PowerShell as Admin, run `wsl --install`, restart, then open **Ubuntu** from Start menu |
+
+You need two things installed before running the installer:
+
+**1. Python 3.10+**
+
+Check if you have it: type `python3 --version` in the terminal.
+
+If not installed:
+- **macOS**: `brew install python` (or download from [python.org](https://www.python.org/downloads/))
+- **Linux**: `sudo apt install python3 python3-venv` (Ubuntu/Debian) or `sudo dnf install python3` (Fedora)
+- **Windows (WSL)**: `sudo apt install python3 python3-venv`
+
+**2. Git**
+
+Check if you have it: type `git --version` in the terminal.
+
+If not installed:
+- **macOS**: `xcode-select --install`
+- **Linux**: `sudo apt install git`
+- **Windows (WSL)**: `sudo apt install git`
+
+> Everything else (Ollama, AI model, Python libraries) is installed automatically by `./install.sh`.
+
+---
+
 ## Quick Start
+
+Once you have Python and Git, open your terminal and run:
 
 ```bash
 git clone https://github.com/juampipey32/apocalipsis-agent.git
@@ -163,7 +199,43 @@ MIT — Use this code to survive.
 
 </div>
 
+## Requisitos Previos — Antes de Empezar
+
+RefugIA se ejecuta desde una **Terminal** — una ventana de texto donde escribís comandos. Así se abre:
+
+| Sistema | Cómo abrir la Terminal |
+|---|---|
+| **macOS** | Presioná `Cmd + Espacio`, escribí **Terminal**, Enter |
+| **Linux** | Presioná `Ctrl + Alt + T` o buscá **Terminal** en tus apps |
+| **Windows** | Abrí PowerShell como Admin, ejecutá `wsl --install`, reiniciá, y abrí **Ubuntu** desde el menú Inicio |
+
+Necesitás dos cosas instaladas antes de correr el instalador:
+
+**1. Python 3.10+**
+
+Verificá escribiendo `python3 --version` en la terminal.
+
+Si no lo tenés:
+- **macOS**: `brew install python` (o descargá de [python.org](https://www.python.org/downloads/))
+- **Linux**: `sudo apt install python3 python3-venv` (Ubuntu/Debian) o `sudo dnf install python3` (Fedora)
+- **Windows (WSL)**: `sudo apt install python3 python3-venv`
+
+**2. Git**
+
+Verificá escribiendo `git --version` en la terminal.
+
+Si no lo tenés:
+- **macOS**: `xcode-select --install`
+- **Linux**: `sudo apt install git`
+- **Windows (WSL)**: `sudo apt install git`
+
+> Todo lo demás (Ollama, modelo de IA, librerías Python) se instala automáticamente con `./install.sh`.
+
+---
+
 ## Inicio Rápido
+
+Una vez que tengas Python y Git, abrí la terminal y ejecutá:
 
 ```bash
 git clone https://github.com/juampipey32/apocalipsis-agent.git
