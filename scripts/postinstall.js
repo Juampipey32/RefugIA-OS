@@ -43,6 +43,7 @@ const pythonCmds = IS_WIN
   : ['python3', 'python'];
 
 let pythonCmd = null;
+let pythonMinor = 0;
 
 for (const cmd of pythonCmds) {
   try {
@@ -51,27 +52,55 @@ for (const cmd of pythonCmds) {
       const match = result.stdout.match(/Python (\d+)\.(\d+)/);
       if (match) {
         const [, major, minor] = match.map(Number);
-        if (major >= 3 && minor >= 10) {
+        if (major >= 3 && minor >= 10 && minor <= 13) {
           pythonCmd = cmd;
+          pythonMinor = minor;
           ok(`Python found: ${result.stdout.trim()}`);
           break;
+        } else if (major >= 3 && minor >= 14) {
+          warn(`Python ${major}.${minor} detected — too new! Packages don't have pre-built binaries yet.`);
+          warn('Please install Python 3.11 or 3.12 from: https://www.python.org/downloads/');
+          if (IS_WIN) {
+            info('On Windows, you can have multiple Python versions installed side by side.');
+            info('Download Python 3.12 and install it alongside your current version.');
+            info('Then re-run: npm install');
+          }
         }
       }
     }
   } catch (_) {}
 }
 
+// On Windows, try py launcher with specific version if no compatible Python found
+if (!pythonCmd && IS_WIN) {
+  for (const ver of ['3.12', '3.11', '3.13', '3.10']) {
+    try {
+      const result = spawnSync('py', [`-${ver}`, '--version'], { encoding: 'utf8' });
+      if (result.status === 0) {
+        pythonCmd = 'py';
+        // We'll use py -3.XX for all subsequent calls
+        info(`Found Python ${ver} via py launcher`);
+        // Override pythonCmd to include version flag
+        pythonCmd = `py -${ver}`;
+        break;
+      }
+    } catch (_) {}
+  }
+}
+
 if (!pythonCmd) {
   console.log(`
-  ${RED}Python 3.10+ not found.${RESET}
+  ${RED}Python 3.10-3.13 not found.${RESET}
 
-  Install it for your OS:
-    macOS:   brew install python  or  https://www.python.org/downloads/
-    Linux:   sudo apt install python3 python3-venv  (Ubuntu/Debian)
-             sudo dnf install python3              (Fedora)
-    Windows: https://www.python.org/downloads/  (check "Add to PATH")
+  ${AMBER}RefugIA requires Python 3.10, 3.11, 3.12, or 3.13.${RESET}
+  Python 3.14+ is NOT supported yet (packages lack pre-built binaries).
 
-  Then run: npm install -g refugia-os
+  Download Python 3.12 (recommended):
+    ${CYAN}https://www.python.org/downloads/release/python-3129/${RESET}
+
+  ${AMBER}Important (Windows):${RESET} Check "Add Python to PATH" during install.
+
+  After installing, run: ${AMBER}npm install${RESET}
 `);
   process.exit(1);
 }
@@ -79,13 +108,35 @@ if (!pythonCmd) {
 // ============================================================
 //  Step 2: Create virtual environment
 // ============================================================
+// Support `py -3.XX` launcher syntax on Windows
+const pythonArgs = pythonCmd.startsWith('py ') ? pythonCmd.split(' ') : [pythonCmd];
+const pythonBin = pythonArgs[0];
+const pythonFlags = pythonArgs.slice(1);
+
 if (!fs.existsSync(VENV)) {
   info('Creating Python virtual environment...');
-  const result = spawnSync(pythonCmd, ['-m', 'venv', VENV], { stdio: 'inherit' });
+  const result = spawnSync(pythonBin, [...pythonFlags, '-m', 'venv', VENV], { stdio: 'inherit' });
   if (result.status !== 0) fail('Failed to create virtual environment.');
   ok('Virtual environment created');
 } else {
-  ok('Virtual environment already exists');
+  // Recreate venv if Python version changed (e.g., user installed 3.12 after having 3.14)
+  info('Virtual environment already exists. Verifying...');
+  const checkResult = spawnSync(
+    IS_WIN ? path.join(VENV, 'Scripts', 'python.exe') : path.join(VENV, 'bin', 'python'),
+    ['--version'], { encoding: 'utf8' }
+  );
+  if (checkResult.status === 0) {
+    const match = checkResult.stdout.match(/Python (\d+)\.(\d+)/);
+    if (match && Number(match[2]) >= 14) {
+      warn('Existing venv uses Python 3.14+. Recreating with compatible version...');
+      fs.rmSync(VENV, { recursive: true, force: true });
+      const result = spawnSync(pythonBin, [...pythonFlags, '-m', 'venv', VENV], { stdio: 'inherit' });
+      if (result.status !== 0) fail('Failed to recreate virtual environment.');
+      ok('Virtual environment recreated with compatible Python');
+    } else {
+      ok('Virtual environment OK');
+    }
+  }
 }
 
 // ============================================================

@@ -6,7 +6,7 @@
 
 *When the grid falls, knowledge survives.*
 
-[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python)](https://python.org)
+[![Python 3.10-3.13](https://img.shields.io/badge/Python-3.10--3.13-blue?logo=python)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-green?logo=fastapi)](https://fastapi.tiangolo.com)
 [![Ollama](https://img.shields.io/badge/Ollama-Local%20LLM-orange)](https://ollama.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -23,7 +23,7 @@ Choose the method that works best for you:
 
 ### Option A — npm (recommended)
 
-> **Requires:** [Node.js 16+](https://nodejs.org/) and [Python 3.10+](https://www.python.org/downloads/) — both have 1-click installers for Windows, macOS, Linux.
+> **Requires:** [Node.js 16+](https://nodejs.org/) and [Python 3.12](https://www.python.org/downloads/release/python-3129/) (3.10-3.13 supported, **not** 3.14+) — both have 1-click installers for Windows, macOS, Linux.
 
 ```bash
 git clone https://github.com/juampipey32/apocalipsis-agent.git
@@ -205,7 +205,7 @@ Elegí el método que más te sirva:
 
 ### Opción A — npm (recomendado)
 
-> **Requiere:** [Node.js 16+](https://nodejs.org/) y [Python 3.10+](https://www.python.org/downloads/) — ambos tienen instaladores visuales para Windows, macOS y Linux.
+> **Requiere:** [Node.js 16+](https://nodejs.org/) y [Python 3.12](https://www.python.org/downloads/release/python-3129/) (3.10-3.13 soportado, **no** 3.14+) — ambos tienen instaladores visuales para Windows, macOS y Linux.
 
 ```bash
 git clone https://github.com/juampipey32/apocalipsis-agent.git
