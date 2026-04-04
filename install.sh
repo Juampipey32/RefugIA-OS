@@ -78,17 +78,50 @@ for cmd in python3 python; do
         PY_VERSION=$("$cmd" -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
         PY_MAJOR=$("$cmd" -c 'import sys; print(sys.version_info.major)')
         PY_MINOR=$("$cmd" -c 'import sys; print(sys.version_info.minor)')
-        if [ "$PY_MAJOR" -ge 3 ] && [ "$PY_MINOR" -ge 10 ]; then
+        if [ "$PY_MAJOR" -ge 3 ] && [ "$PY_MINOR" -ge 10 ] && [ "$PY_MINOR" -le 13 ]; then
             PYTHON_CMD="$cmd"
             break
+        elif [ "$PY_MAJOR" -ge 3 ] && [ "$PY_MINOR" -ge 14 ]; then
+            warn "Python $PY_VERSION detected — too new, packages lack pre-built binaries."
         fi
     fi
 done
 
 if [ -z "$PYTHON_CMD" ]; then
-    fail "Python 3.10+ es requerido pero no se encontró.\nInstala Python: https://www.python.org/downloads/"
+    warn "Python 3.10-3.13 not found. Installing..."
+    if [ "$OS_NAME" = "macOS" ]; then
+        if command -v brew &> /dev/null; then
+            brew install python@3.12
+            PYTHON_CMD="python3"
+        else
+            info "Installing Homebrew first..."
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            brew install python@3.12
+            PYTHON_CMD="python3"
+        fi
+    elif [ "$OS_NAME" = "Linux" ]; then
+        if command -v apt &> /dev/null; then
+            sudo apt update -qq && sudo apt install -y python3 python3-venv python3-pip
+            PYTHON_CMD="python3"
+        elif command -v dnf &> /dev/null; then
+            sudo dnf install -y python3 python3-pip
+            PYTHON_CMD="python3"
+        elif command -v pacman &> /dev/null; then
+            sudo pacman -Sy --noconfirm python python-pip
+            PYTHON_CMD="python3"
+        else
+            fail "Could not auto-install Python. Install Python 3.12 manually and re-run this script."
+        fi
+    fi
+
+    if [ -z "$PYTHON_CMD" ]; then
+        fail "Python installation failed. Install Python 3.12 from: https://www.python.org/downloads/"
+    fi
+    PY_VERSION=$("$PYTHON_CMD" -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+    ok "Python installed: $PYTHON_CMD ($PY_VERSION)"
+else
+    ok "Python encontrado: $PYTHON_CMD ($PY_VERSION)"
 fi
-ok "Python encontrado: $PYTHON_CMD ($PY_VERSION)"
 
 # ============================================================
 #  Step 3: Check/Install Ollama
@@ -134,7 +167,7 @@ source venv/bin/activate
 
 info "Instalando dependencias (esto puede tardar unos minutos)..."
 pip install --upgrade pip -q
-pip install -r requirements.txt -q
+pip install -r requirements.txt -q --prefer-binary
 ok "Dependencias instaladas"
 
 # ============================================================
@@ -186,17 +219,16 @@ fi
 # ============================================================
 echo ""
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${GREEN}${BOLD}  INSTALACIÓN COMPLETADA / INSTALLATION COMPLETE${NC}"
+echo -e "${GREEN}${BOLD}  INSTALLATION COMPLETE!${NC}"
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
-echo -e "  Para iniciar RefugIA OS:"
-echo -e "  ${AMBER}./refugia start${NC}"
+echo -e "  Starting RefugIA OS..."
+echo -e "  Open your browser at: ${AMBER}http://127.0.0.1:${API_PORT:-8000}${NC}"
+echo -e "  Press ${BOLD}Ctrl+C${NC} to stop the server."
 echo ""
-echo -e "  To start RefugIA OS:"
-echo -e "  ${AMBER}./refugia start${NC}"
-echo ""
-echo -e "  Otros comandos / Other commands:"
-echo -e "    ./refugia status   — Estado del sistema / System status"
-echo -e "    ./refugia index    — Re-indexar manuales / Re-index manuals"
-echo -e "    ./refugia doctor   — Diagnosticar problemas / Diagnose issues"
-echo ""
+
+# Open browser after delay
+(sleep 2 && xdg-open "http://127.0.0.1:${API_PORT:-8000}" 2>/dev/null || open "http://127.0.0.1:${API_PORT:-8000}" 2>/dev/null) &
+
+# Start server
+"$PYTHON_CMD" src/agente_api.py
