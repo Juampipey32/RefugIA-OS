@@ -97,8 +97,12 @@ const pipCmd = IS_WIN
 
 const reqFile = path.join(ROOT, 'requirements.txt');
 
+// Upgrade pip first — old pip on Windows can't find pre-built wheels
+info('Upgrading pip...');
+spawnSync(pipCmd, ['install', '--upgrade', 'pip', '-q'], { stdio: 'inherit', cwd: ROOT });
+
 info('Installing Python dependencies (this may take a few minutes)...');
-const pipResult = spawnSync(pipCmd, ['install', '-r', reqFile, '-q'], {
+const pipResult = spawnSync(pipCmd, ['install', '-r', reqFile, '-q', '--prefer-binary'], {
   stdio: 'inherit',
   cwd: ROOT,
 });
