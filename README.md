@@ -17,48 +17,26 @@
 
 ---
 
-## Install
+## Install — One Command
 
-Choose the method that works best for you:
+Copy-paste ONE command. It installs everything (Python, Ollama, AI model) and starts the server.
 
-### Option A — npm (recommended)
-
-> **Requires:** [Node.js 16+](https://nodejs.org/) and [Python 3.12](https://www.python.org/downloads/release/python-3129/) (3.10-3.13 supported, **not** 3.14+) — both have 1-click installers for Windows, macOS, Linux.
-
-```bash
-git clone https://github.com/juampipey32/apocalipsis-agent.git
-cd apocalipsis-agent
-npm install
-npm start
+**Windows** (open PowerShell):
+```powershell
+irm https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/setup.ps1 | iex
 ```
 
-`npm install` sets up everything automatically: Python venv, dependencies, and Ollama.
-After install, you can also use `npx refugia start`, `npx refugia index`, etc.
-
-<!-- When published to npm: npm install -g refugia-os && refugia start -->
-
-### Option B — Docker (zero setup)
-
-> **Requires:** [Docker Desktop](https://www.docker.com/products/docker-desktop/) — includes a visual UI, works on all platforms.
-
+**macOS / Linux** (open Terminal):
 ```bash
-git clone https://github.com/juampipey32/apocalipsis-agent.git
-cd apocalipsis-agent
-docker compose up
+git clone https://github.com/juampipey32/apocalipsis-agent.git && cd apocalipsis-agent && ./install.sh
 ```
 
-Open [http://localhost:8000](http://localhost:8000) when it's ready.
-
-### Option C — Manual (Linux/macOS only)
-
+**Docker** (if you have [Docker Desktop](https://www.docker.com/products/docker-desktop/)):
 ```bash
-git clone https://github.com/juampipey32/apocalipsis-agent.git
-cd apocalipsis-agent
-./install.sh
-./refugia start
+git clone https://github.com/juampipey32/apocalipsis-agent.git && cd apocalipsis-agent && docker compose up
 ```
 
-> **Requires:** Python 3.10+ and Git. See [Prerequisites](#prerequisites--before-you-start) below if you need help.
+That's it. The browser opens automatically at [http://localhost:8000](http://localhost:8000).
 
 ---
 
@@ -199,48 +177,26 @@ MIT — Use this code to survive.
 
 </div>
 
-## Instalación
+## Instalar — Un Solo Comando
 
-Elegí el método que más te sirva:
+Copiá y pegá UN comando. Instala todo (Python, Ollama, modelo IA) y arranca el servidor.
 
-### Opción A — npm (recomendado)
-
-> **Requiere:** [Node.js 16+](https://nodejs.org/) y [Python 3.12](https://www.python.org/downloads/release/python-3129/) (3.10-3.13 soportado, **no** 3.14+) — ambos tienen instaladores visuales para Windows, macOS y Linux.
-
-```bash
-git clone https://github.com/juampipey32/apocalipsis-agent.git
-cd apocalipsis-agent
-npm install
-npm start
+**Windows** (abrí PowerShell):
+```powershell
+irm https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/setup.ps1 | iex
 ```
 
-`npm install` configura todo automáticamente: entorno Python, dependencias y Ollama.
-Después de instalar, también podés usar `npx refugia start`, `npx refugia index`, etc.
-
-<!-- Cuando se publique en npm: npm install -g refugia-os && refugia start -->
-
-### Opción B — Docker (sin configuración previa)
-
-> **Requiere:** [Docker Desktop](https://www.docker.com/products/docker-desktop/) — incluye interfaz visual, funciona en todas las plataformas.
-
+**macOS / Linux** (abrí Terminal):
 ```bash
-git clone https://github.com/juampipey32/apocalipsis-agent.git
-cd apocalipsis-agent
-docker compose up
+git clone https://github.com/juampipey32/apocalipsis-agent.git && cd apocalipsis-agent && ./install.sh
 ```
 
-Abrí [http://localhost:8000](http://localhost:8000) cuando esté listo.
-
-### Opción C — Manual (Linux/macOS)
-
+**Docker** (si tenés [Docker Desktop](https://www.docker.com/products/docker-desktop/)):
 ```bash
-git clone https://github.com/juampipey32/apocalipsis-agent.git
-cd apocalipsis-agent
-./install.sh
-./refugia start
+git clone https://github.com/juampipey32/apocalipsis-agent.git && cd apocalipsis-agent && docker compose up
 ```
 
-> **Requiere:** Python 3.10+ y Git.
+Listo. El navegador se abre automáticamente en [http://localhost:8000](http://localhost:8000).
 
 ---
 
