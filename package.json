@@ -1,0 +1,29 @@
+{
+  "name": "refugia-os",
+  "version": "1.0.0",
+  "description": "Offline survival AI assistant — 100% local, 100% offline",
+  "homepage": "https://github.com/juampipey32/apocalipsis-agent",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/juampipey32/apocalipsis-agent.git"
+  },
+  "license": "MIT",
+  "keywords": ["survival", "ai", "offline", "rag", "ollama", "llm"],
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "bin": {
+    "refugia": "./bin/refugia.js"
+  },
+  "scripts": {
+    "postinstall": "node scripts/postinstall.js"
+  },
+  "files": [
+    "bin/",
+    "scripts/",
+    "src/",
+    "frontend/",
+    "manuales/",
+    "requirements.txt"
+  ]
+}

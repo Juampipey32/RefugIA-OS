@@ -17,43 +17,34 @@
 
 ---
 
-## Prerequisites — Before You Start
+## Install
 
-You'll run RefugIA from a **Terminal** — a text window where you type commands. Here's how to open it:
+Choose the method that works best for you:
 
-| OS | How to open the Terminal |
-|---|---|
-| **macOS** | Press `Cmd + Space`, type **Terminal**, hit Enter |
-| **Linux** | Press `Ctrl + Alt + T` or search **Terminal** in your apps |
-| **Windows** | Open PowerShell as Admin, run `wsl --install`, restart, then open **Ubuntu** from Start menu |
+### Option A — npm (recommended)
 
-You need two things installed before running the installer:
+> **Requires:** [Node.js 16+](https://nodejs.org/en/download/) — free, 1-click installer for Windows, macOS, Linux.
 
-**1. Python 3.10+**
+```bash
+npm install -g refugia-os
+refugia start
+```
 
-Check if you have it: type `python3 --version` in the terminal.
+That's it. `npm install` handles everything: Python venv, dependencies, and Ollama setup.
 
-If not installed:
-- **macOS**: `brew install python` (or download from [python.org](https://www.python.org/downloads/))
-- **Linux**: `sudo apt install python3 python3-venv` (Ubuntu/Debian) or `sudo dnf install python3` (Fedora)
-- **Windows (WSL)**: `sudo apt install python3 python3-venv`
+### Option B — Docker (zero setup)
 
-**2. Git**
+> **Requires:** [Docker Desktop](https://www.docker.com/products/docker-desktop/) — includes a visual UI, works on all platforms.
 
-Check if you have it: type `git --version` in the terminal.
+```bash
+git clone https://github.com/juampipey32/apocalipsis-agent.git
+cd apocalipsis-agent
+docker compose up
+```
 
-If not installed:
-- **macOS**: `xcode-select --install`
-- **Linux**: `sudo apt install git`
-- **Windows (WSL)**: `sudo apt install git`
+Open [http://localhost:8000](http://localhost:8000) when it's ready.
 
-> Everything else (Ollama, AI model, Python libraries) is installed automatically by `./install.sh`.
-
----
-
-## Quick Start
-
-Once you have Python and Git, open your terminal and run:
+### Option C — Manual (Linux/macOS only)
 
 ```bash
 git clone https://github.com/juampipey32/apocalipsis-agent.git
@@ -62,7 +53,9 @@ cd apocalipsis-agent
 ./refugia start
 ```
 
-That's it. One script installs everything: Ollama, Python dependencies, AI model, and indexes the survival manuals.
+> **Requires:** Python 3.10+ and Git. See [Prerequisites](#prerequisites--before-you-start) below if you need help.
+
+---
 
 ---
 
@@ -199,43 +192,34 @@ MIT — Use this code to survive.
 
 </div>
 
-## Requisitos Previos — Antes de Empezar
+## Instalación
 
-RefugIA se ejecuta desde una **Terminal** — una ventana de texto donde escribís comandos. Así se abre:
+Elegí el método que más te sirva:
 
-| Sistema | Cómo abrir la Terminal |
-|---|---|
-| **macOS** | Presioná `Cmd + Espacio`, escribí **Terminal**, Enter |
-| **Linux** | Presioná `Ctrl + Alt + T` o buscá **Terminal** en tus apps |
-| **Windows** | Abrí PowerShell como Admin, ejecutá `wsl --install`, reiniciá, y abrí **Ubuntu** desde el menú Inicio |
+### Opción A — npm (recomendado)
 
-Necesitás dos cosas instaladas antes de correr el instalador:
+> **Requiere:** [Node.js 16+](https://nodejs.org/es/download/) — gratuito, instalador visual para Windows, macOS y Linux.
 
-**1. Python 3.10+**
+```bash
+npm install -g refugia-os
+refugia start
+```
 
-Verificá escribiendo `python3 --version` en la terminal.
+`npm install` se encarga de todo: entorno Python, dependencias y configuración de Ollama.
 
-Si no lo tenés:
-- **macOS**: `brew install python` (o descargá de [python.org](https://www.python.org/downloads/))
-- **Linux**: `sudo apt install python3 python3-venv` (Ubuntu/Debian) o `sudo dnf install python3` (Fedora)
-- **Windows (WSL)**: `sudo apt install python3 python3-venv`
+### Opción B — Docker (sin configuración previa)
 
-**2. Git**
+> **Requiere:** [Docker Desktop](https://www.docker.com/products/docker-desktop/) — incluye interfaz visual, funciona en todas las plataformas.
 
-Verificá escribiendo `git --version` en la terminal.
+```bash
+git clone https://github.com/juampipey32/apocalipsis-agent.git
+cd apocalipsis-agent
+docker compose up
+```
 
-Si no lo tenés:
-- **macOS**: `xcode-select --install`
-- **Linux**: `sudo apt install git`
-- **Windows (WSL)**: `sudo apt install git`
+Abrí [http://localhost:8000](http://localhost:8000) cuando esté listo.
 
-> Todo lo demás (Ollama, modelo de IA, librerías Python) se instala automáticamente con `./install.sh`.
-
----
-
-## Inicio Rápido
-
-Una vez que tengas Python y Git, abrí la terminal y ejecutá:
+### Opción C — Manual (Linux/macOS)
 
 ```bash
 git clone https://github.com/juampipey32/apocalipsis-agent.git
@@ -244,7 +228,7 @@ cd apocalipsis-agent
 ./refugia start
 ```
 
-Un solo script instala todo: Ollama, dependencias Python, modelo de IA, e indexa los manuales de supervivencia.
+> **Requiere:** Python 3.10+ y Git.
 
 ---
 
