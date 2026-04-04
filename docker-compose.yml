@@ -1,0 +1,43 @@
+# ============================================================
+# RefugIA OS — Docker Compose
+# ============================================================
+# Starts RefugIA + Ollama together with one command:
+#   docker compose up
+#
+# First time: downloads Ollama model (~2-4 GB)
+# After that: fully offline, no internet needed
+# ============================================================
+
+services:
+  # --- Ollama: Local LLM server ---
+  ollama:
+    image: ollama/ollama
+    container_name: refugia-ollama
+    volumes:
+      - ollama_models:/root/.ollama   # Persist downloaded models
+    ports:
+      - "11434:11434"
+    restart: unless-stopped
+    # Pull model on first start
+    entrypoint: ["/bin/sh", "-c", "ollama serve & sleep 5 && ollama pull ${REFUGIA_MODEL:-phi3} && wait"]
+
+  # --- RefugIA: Survival AI backend + frontend ---
+  refugia:
+    build: .
+    container_name: refugia-app
+    depends_on:
+      - ollama
+    environment:
+      REFUGIA_MODEL: ${REFUGIA_MODEL:-phi3}
+      OLLAMA_URL: http://ollama:11434
+      REFUGIA_PORT: 8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./manuales:/app/manuales     # Mount your PDF manuals
+      - refugia_db:/app/src/db       # Persist vector database
+    restart: unless-stopped
+
+volumes:
+  ollama_models:
+  refugia_db:
