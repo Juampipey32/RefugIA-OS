@@ -16,7 +16,11 @@
     "refugia": "./bin/refugia.js"
   },
   "scripts": {
-    "postinstall": "node scripts/postinstall.js"
+    "postinstall": "node scripts/postinstall.js",
+    "start": "node bin/refugia.js start",
+    "index": "node bin/refugia.js index",
+    "status": "node bin/refugia.js status",
+    "doctor": "node bin/refugia.js doctor"
   },
   "files": [
     "bin/",

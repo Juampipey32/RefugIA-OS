@@ -23,14 +23,19 @@ Choose the method that works best for you:
 
 ### Option A — npm (recommended)
 
-> **Requires:** [Node.js 16+](https://nodejs.org/en/download/) — free, 1-click installer for Windows, macOS, Linux.
+> **Requires:** [Node.js 16+](https://nodejs.org/) and [Python 3.10+](https://www.python.org/downloads/) — both have 1-click installers for Windows, macOS, Linux.
 
 ```bash
-npm install -g refugia-os
-refugia start
+git clone https://github.com/juampipey32/apocalipsis-agent.git
+cd apocalipsis-agent
+npm install
+npm start
 ```
 
-That's it. `npm install` handles everything: Python venv, dependencies, and Ollama setup.
+`npm install` sets up everything automatically: Python venv, dependencies, and Ollama.
+After install, you can also use `npx refugia start`, `npx refugia index`, etc.
+
+<!-- When published to npm: npm install -g refugia-os && refugia start -->
 
 ### Option B — Docker (zero setup)
 
@@ -100,10 +105,12 @@ RefugIA works as a **Progressive Web App**. On mobile, open the URL in your brow
 
 | Command | Description |
 |---|---|
-| `./refugia start` | Launch the server and open browser |
-| `./refugia index` | Index PDF survival manuals |
-| `./refugia status` | Show system status |
-| `./refugia doctor` | Diagnose common issues |
+| `npx refugia start` | Launch the server and open browser |
+| `npx refugia index` | Index PDF survival manuals |
+| `npx refugia status` | Show system status |
+| `npx refugia doctor` | Diagnose common issues |
+
+Or use `npm start`, `npm run index`, `npm run status`, `npm run doctor`.
 
 ---
 
@@ -198,14 +205,19 @@ Elegí el método que más te sirva:
 
 ### Opción A — npm (recomendado)
 
-> **Requiere:** [Node.js 16+](https://nodejs.org/es/download/) — gratuito, instalador visual para Windows, macOS y Linux.
+> **Requiere:** [Node.js 16+](https://nodejs.org/) y [Python 3.10+](https://www.python.org/downloads/) — ambos tienen instaladores visuales para Windows, macOS y Linux.
 
 ```bash
-npm install -g refugia-os
-refugia start
+git clone https://github.com/juampipey32/apocalipsis-agent.git
+cd apocalipsis-agent
+npm install
+npm start
 ```
 
-`npm install` se encarga de todo: entorno Python, dependencias y configuración de Ollama.
+`npm install` configura todo automáticamente: entorno Python, dependencias y Ollama.
+Después de instalar, también podés usar `npx refugia start`, `npx refugia index`, etc.
+
+<!-- Cuando se publique en npm: npm install -g refugia-os && refugia start -->
 
 ### Opción B — Docker (sin configuración previa)
 
@@ -252,10 +264,12 @@ RefugIA funciona como **Progressive Web App**. En el celular, abrí la URL en el
 
 | Comando | Descripción |
 |---|---|
-| `./refugia start` | Iniciar el servidor y abrir el navegador |
-| `./refugia index` | Indexar manuales PDF de supervivencia |
-| `./refugia status` | Mostrar estado del sistema |
-| `./refugia doctor` | Diagnosticar problemas comunes |
+| `npx refugia start` | Iniciar el servidor y abrir el navegador |
+| `npx refugia index` | Indexar manuales PDF de supervivencia |
+| `npx refugia status` | Mostrar estado del sistema |
+| `npx refugia doctor` | Diagnosticar problemas comunes |
+
+O usá `npm start`, `npm run index`, `npm run status`, `npm run doctor`.
 
 ---
 
