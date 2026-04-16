@@ -1,36 +1,56 @@
-# Python
-__pycache__/
-*.py[cod]
-*.egg-info/
-venv/
-.venv/
-dist/
-build/
+```
+# Compressed files
+*.tgz
+*.zip
+*.gz
+*.tar
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
 
-# Node.js
-node_modules/
-npm-debug.log*
+# Environment files
+.env
+.env.local
+*.env.*
 
-# ChromaDB vectorstore (se regenera con indexador.py)
-src/db/chroma*
-src/db/*.sqlite3
-src/db/*.bin
-
-# IDE
+# Editor/IDE files
 .vscode/
 .idea/
 *.swp
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Modelos descargados (HuggingFace cache)
-.cache/
+*.swo
+*.tmp
 
 # Logs
 *.log
 
-# Environment
-.env
-.env.local
+# Dependencies
+node_modules/
+venv/
+.venv/
+__pycache__/
+.mypy_cache/
+.pytest_cache/
+dist/
+build/
+target/
+.gradle/
+
+# System files
+.DS_Store
+Thumbs.db
+```
