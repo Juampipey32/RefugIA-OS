@@ -1,23 +1,31 @@
 <div align="center">
 
-# RefugIA OS
+# 🛡️ RefugIA OS — Agente de Apocalipsis
 
-### Offline Survival Operating System with Local AI
+### Sistema Operativo de Supervivencia con IA Local 100% Offline
 
-*When the grid falls, knowledge survives.*
+> *"Cuando la red cae, el conocimiento sobrevive"*
 
-[![Python 3.10-3.13](https://img.shields.io/badge/Python-3.10--3.13-blue?logo=python)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-green?logo=fastapi)](https://fastapi.tiangolo.com)
-[![Ollama](https://img.shields.io/badge/Ollama-Local%20LLM-orange)](https://ollama.com)
+[![Python 3.10-3.13](https://img.shields.io/badge/Python-3.10--3.13-blue?logo=python&logoColor=white)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green?logo=fastapi)](https://fastapi.tiangolo.com)
+[![Ollama](https://img.shields.io/badge/Ollama-Local%20LLM-orange?logo=ollama)](https://ollama.com)
+[![LangChain](https://img.shields.io/badge/LangChain-RAG-yellow)](https://langchain.com)
+[![ChromaDB](https://img.shields.io/badge/ChromaDB-Vectors-purple)](https://trychroma.com)
+[![PWA](https://img.shields.io/badge/PWA-Mobile%20Ready-brightgreen)]()
+[![100% Offline](https://img.shields.io/badge/Offline-100%25-red?logo=offline)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![100% Offline](https://img.shields.io/badge/Works-100%25%20Offline-red)]()
-[![PWA Ready](https://img.shields.io/badge/PWA-Mobile%20Ready-purple)]()
+
+[![Install](https://img.shields.io/badge/Install-1%20Command-success)](#install--one-command)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)](docker-compose.yml)
+[![Platform](https://img.shields.io/badge/Platform-Windows%7CmacOS%7CLinux%7CAndroid%7CiOS-lightgrey)]()
 
 </div>
 
 ---
 
-## Install — One Command
+## 🚀 Install — One Command
+
+**Copy-paste ONE command.** It installs everything (Python, Ollama, AI model optimized for your hardware) and starts the server.
 
 Copy-paste ONE command. It auto-detects your system and installs everything (Python, Ollama, AI model) or uses Docker if available.
 
@@ -45,40 +53,71 @@ The browser opens automatically at [http://localhost:8000](http://localhost:8000
 
 ---
 
-## What is RefugIA?
+## 🧠 What is RefugIA?
 
-**RefugIA** is a fully offline survival assistant powered by a **local AI** (LLM via Ollama) that uses **RAG** (Retrieval-Augmented Generation) to answer survival questions from indexed PDF manuals. It works with **zero internet** after initial setup.
+**RefugIA** is an offline survival OS powered by **local AI** (LLM via Ollama) using **RAG** (Retrieval-Augmented Generation) to answer survival questions from PDF manuals. Works **100% offline** after install.
 
-- **Tactical Medicine** — First aid, wound treatment, infection management
-- **Water Purification** — Filtration, distillation, chemical treatment
-- **Shelter Building** — Temporary structures, thermal insulation
-- **Fire & Heat** — Ignition techniques, fire types
-- **Ration Tracking** — Water and food inventory with local persistence
+### 🎯 Core Features
 
-### Mobile Support (PWA)
+| Feature | Description |
+|---------|-------------|
+| 🏥 **Tactical Medicine** | First aid, wound care, infection management, trauma response |
+| 💧 **Water Purification** | Filtration, distillation, chemical treatment, sourcing |
+| ⛺ **Shelter Building** | Temporary structures, insulation, weatherproofing |
+| 🔥 **Fire & Heat** | Ignition techniques, fuel types, fire safety |
+| 📦 **Supply Management** | Track water, food, medicine with depletion alerts |
+| 🧭 **Navigation** | Orienteering, landmarks, emergency routes |
+| 🌡️ **Weather Survival** | Hypothermia prevention, heat stroke, storm shelter |
+| 📚 **Manual Indexing** | Auto-indexes any PDF survival guide you add |
 
-RefugIA works as a **Progressive Web App**. On mobile, open the URL in your browser and tap **"Install"** or **"Add to Home Screen"** to use it like a native app — fully offline.
+### 🤖 Smart Model Detection
+
+RefugIA **automatically detects** the best local LLM for your hardware:
+
+| RAM Available | Model Selected | Performance |
+|---------------|----------------|-------------|
+| < 4 GB | `phi3` (3.8B) | Fast, minimal RAM |
+| 4-8 GB | `llama3:8b` | Balanced |
+| 8-16 GB | `mistral:7b` or `llama3:8b-instruct` | Enhanced reasoning |
+| > 16 GB | `gemma2:9b` or `llama3:70b` (if GPU) | Maximum intelligence |
+
+The installer checks your system and downloads the optimal model automatically!
 
 ---
 
-## Architecture
+---
+
+## 🏗️ Architecture
 
 ```
-┌─────────────────────────────────────────────┐
-│               FRONTEND (HTML/JS)            │
-│         CRT Terminal UI · Chat + Inventory  │
-│         PWA · Works offline on mobile       │
-└─────────────────┬───────────────────────────┘
-                  │ POST /api/chat
-┌─────────────────▼───────────────────────────┐
-│              FastAPI Backend                 │
-│         LangChain RetrievalQA Chain         │
-├──────────┬──────────────────┬───────────────┤
-│ ChromaDB │   HuggingFace   │  Ollama LLM   │
-│ Vectors  │   Embeddings    │  (phi3/llama3) │
-│  (local) │ (all-MiniLM-L6) │   (local)     │
-└──────────┴──────────────────┴───────────────┘
+┌─────────────────────────────────────────────────────────┐
+│              FRONTEND (HTML/CSS/JS PWA)                 │
+│    CRT Terminal UI · Chat · Inventory · Offline-First   │
+│    Responsive Mobile · Installable · Zero Dependencies  │
+└──────────────────────┬──────────────────────────────────┘
+                       │ POST /api/chat
+┌──────────────────────▼──────────────────────────────────┐
+│                   FastAPI Backend                        │
+│         LangChain RAG Chain · Supply Tracker            │
+├────────────┬─────────────────────┬──────────────────────┤
+│  ChromaDB  │  HuggingFace        │   Ollama LLM         │
+│  Vectors   │  Embeddings         │   Auto-Detect Model  │
+│  (local)   │  (all-MiniLM-L6-v2) │   phi3/llama3/etc    │
+└────────────┴─────────────────────┴──────────────────────┘
+          ↓                ↓                    ↓
+   Persistent DB     CPU/GPU Inference    Hardware-Optimized
 ```
+
+### Key Components
+
+| Component | Technology | Purpose |
+|-----------|------------|---------|
+| **Vector DB** | ChromaDB | Stores embeddings from PDF manuals |
+| **Embeddings** | all-MiniLM-L6-v2 | 384-dim vectors, ~80MB, offline |
+| **LLM** | Ollama (phi3/llama3/mistral) | Local inference, no cloud |
+| **RAG Engine** | LangChain | Retrieves + generates answers |
+| **Frontend** | Vanilla JS + PWA | Works on any device, offline |
+| **Supply Tracker** | localStorage | Persistent inventory on client |
 
 ---
 
@@ -110,14 +149,26 @@ REFUGIA_MODEL=llama3 ./refugia start
 
 ---
 
-## Hardware Requirements
+## 💻 Hardware Requirements
 
-| Component | Minimum | Recommended |
-|---|---|---|
-| **RAM** | 4 GB | 8 GB+ |
-| **CPU** | Dual Core | Quad Core |
-| **Disk** | 2 GB free | 5 GB+ |
-| **GPU** | Not required | Optional (accelerates Ollama) |
+| Component | Minimum | Recommended | High-End |
+|-----------|---------|-------------|----------|
+| **RAM** | 4 GB | 8 GB+ | 16 GB+ |
+| **CPU** | Dual Core | Quad Core | 8+ cores |
+| **Disk** | 2 GB free | 5 GB+ | 10 GB+ SSD |
+| **GPU** | Not required | Optional (CUDA) | NVIDIA RTX |
+| **Mobile** | Any smartphone with browser | PWA installed | Offline mode |
+
+### Model Selection by Hardware
+
+RefugIA auto-detects your hardware and selects the optimal model:
+
+```python
+if RAM < 4GB:      → phi3:3.8b          (fast, minimal)
+elif RAM < 8GB:    → llama3:8b          (balanced)
+elif RAM < 16GB:   → mistral:7b-instruct (smart)
+else:              → gemma2:9b or llama3:70b (max intelligence)
+```
 
 ---
 
@@ -178,11 +229,9 @@ MIT — Use this code to survive.
 
 <div align="center">
 
-## Español
+## 🇪🇸 Español
 
-</div>
-
-## Instalar — Un Solo Comando
+### Instalar — Un Solo Comando
 
 Copiá y pegá UN comando. Detecta automáticamente tu sistema e instala todo (Python, Ollama, modelo IA) o usa Docker si está disponible.
 
@@ -212,22 +261,38 @@ El navegador se abre automáticamente en [http://localhost:8000](http://localhos
 
 **RefugIA** es un sistema de supervivencia offline con **IA local** (LLM vía Ollama) que usa **RAG** (Retrieval-Augmented Generation) para consultar manuales de supervivencia en PDF. Funciona **100% sin internet** después de la instalación inicial.
 
-- **Medicina Táctica** — Primeros auxilios, suturas, tratamiento de infecciones
-- **Purificación de Agua** — Filtrado, destilación, tratamiento químico
-- **Construcción de Refugios** — Estructuras temporales, aislamiento térmico
-- **Fuego y Calor** — Técnicas de encendido, tipos de fogatas
-- **Gestión de Raciones** — Inventario de agua y comida con persistencia local
+### 🎯 Características Principales
 
-### Soporte Móvil (PWA)
+| Característica | Descripción |
+|----------------|-------------|
+| 🏥 **Medicina Táctica** | Primeros auxilios, suturas, tratamiento de infecciones, trauma |
+| 💧 **Purificación de Agua** | Filtrado, destilación, tratamiento químico, búsqueda de fuentes |
+| ⛺ **Construcción de Refugios** | Estructuras temporales, aislamiento térmico, impermeabilización |
+| 🔥 **Fuego y Calor** | Técnicas de encendido, tipos de combustible, seguridad |
+| 📦 **Gestión de Suministros** | Inventario de agua, comida, medicina con alertas de agotamiento |
+| 🧭 **Navegación** | Orientación, puntos de referencia, rutas de emergencia |
+| 🌡️ **Supervivencia Climática** | Prevención de hipotermia, golpe de calor, refugio ante tormentas |
+| 📚 **Indexado de Manuales** | Auto-indexa cualquier guía PDF que agregues |
 
-RefugIA funciona como **Progressive Web App**. En el celular, abrí la URL en el navegador y tocá **"Instalar"** o **"Agregar a pantalla de inicio"** para usarla como app nativa, 100% offline.
+### 🤖 Detección Inteligente de Modelos
+
+RefugIA **detecta automáticamente** el mejor LLM local para tu hardware:
+
+| RAM Disponible | Modelo Seleccionado | Rendimiento |
+|----------------|---------------------|-------------|
+| < 4 GB | `phi3` (3.8B) | Rápido, mínimo RAM |
+| 4-8 GB | `llama3:8b` | Balanceado |
+| 8-16 GB | `mistral:7b-instruct` | Razonamiento mejorado |
+| > 16 GB | `gemma2:9b` o `llama3:70b` (con GPU) | Máxima inteligencia |
+
+¡El instalador chequea tu sistema y descarga el modelo óptimo automáticamente!
 
 ---
 
 ## Comandos CLI
 
 | Comando | Descripción |
-|---|---|
+|---------|-------------|
 | `npx refugia start` | Iniciar el servidor y abrir el navegador |
 | `npx refugia index` | Indexar manuales PDF de supervivencia |
 | `npx refugia status` | Mostrar estado del sistema |
@@ -240,17 +305,30 @@ O usá `npm start`, `npm run index`, `npm run status`, `npm run doctor`.
 ## Variables de Entorno
 
 | Variable | Default | Descripción |
-|---|---|---|
+|----------|---------|-------------|
 | `REFUGIA_MODEL` | `phi3` | Modelo Ollama (phi3, llama3, mistral, gemma2) |
 | `OLLAMA_URL` | `http://localhost:11434` | Endpoint de Ollama |
 | `REFUGIA_PORT` | `8000` | Puerto del servidor |
+| `REFUGIA_HOST` | `127.0.0.1` | Host del servidor (usá `0.0.0.0` para acceso desde móviles) |
+
+Ejemplo:
+```bash
+REFUGIA_MODEL=llama3 REFUGIA_HOST=0.0.0.0 ./refugia start
+```
 
 ---
 
 <div align="center">
 
-*"En el fin del mundo, el conocimiento es el recurso más valioso."*
+> *"En el fin del mundo, el conocimiento es el recurso más valioso."*
 
-**RefugIA OS** — Hecho para cuando todo lo demás falle.
+### 🛡️ RefugIA OS — Agente de Apocalipsis
+
+Hecho para cuando todo lo demás falle.
+
+[![GitHub Stars](https://img.shields.io/github/stars/juampipey32/apocalipsis-agent?style=social)](https://github.com/juampipey32/apocalipsis-agent)
+[![GitHub Forks](https://img.shields.io/github/forks/juampipey32/apocalipsis-agent?style=social)](https://github.com/juampipey32/apocalipsis-agent)
+
+**[Reportar Bug](https://github.com/juampipey32/apocalipsis-agent/issues) · [Sugerir Feature](https://github.com/juampipey32/apocalipsis-agent/issues) · [Discord](#)**
 
 </div>
