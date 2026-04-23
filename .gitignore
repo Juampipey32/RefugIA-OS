@@ -1,36 +1,4 @@
-# Python
-__pycache__/
-*.py[cod]
-*.egg-info/
-venv/
-.venv/
-dist/
-build/
+(refugia.sh is a shell script, which is source code - don't ignore)
+(README.md is a markdown file, which is documentation/source - don't ignore)
 
-# Node.js
-node_modules/
-npm-debug.log*
-
-# ChromaDB vectorstore (se regenera con indexador.py)
-src/db/chroma*
-src/db/*.sqlite3
-src/db/*.bin
-
-# IDE
-.vscode/
-.idea/
-*.swp
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Modelos descargados (HuggingFace cache)
-.cache/
-
-# Logs
-*.log
-
-# Environment
-.env
-.env.local
+(empty - no build artifacts, dependencies, or temp files to ignore)

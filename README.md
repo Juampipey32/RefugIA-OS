@@ -19,24 +19,27 @@
 
 ## Install — One Command
 
-Copy-paste ONE command. It installs everything (Python, Ollama, AI model) and starts the server.
+Copy-paste ONE command. It auto-detects your system and installs everything (Python, Ollama, AI model) or uses Docker if available.
 
-**Windows** (open PowerShell):
-```powershell
-irm https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/setup.ps1 | iex
-```
-
-**macOS / Linux** (open Terminal):
+**Any OS** (Linux/macOS/Windows with WSL):
 ```bash
-git clone https://github.com/juampipey32/apocalipsis-agent.git && cd apocalipsis-agent && ./install.sh
+curl -fsSL https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/refugia.sh | bash
 ```
 
-**Docker** (if you have [Docker Desktop](https://www.docker.com/products/docker-desktop/)):
+Or if you already cloned the repo:
 ```bash
-git clone https://github.com/juampipey32/apocalipsis-agent.git && cd apocalipsis-agent && docker compose up
+./refugia.sh
 ```
 
-That's it. The browser opens automatically at [http://localhost:8000](http://localhost:8000).
+That's it. The script automatically:
+- Detects if Docker is available (uses it if yes)
+- Falls back to native installation if needed
+- Installs Python, Ollama, and dependencies
+- Downloads AI models
+- Indexes your PDF manuals
+- Starts the server and opens your browser
+
+The browser opens automatically at [http://localhost:8000](http://localhost:8000).
 
 ---
 
@@ -122,8 +125,10 @@ REFUGIA_MODEL=llama3 ./refugia start
 
 ```
 refugia-os/
-├── refugia                # CLI entry point
-├── install.sh             # One-command installer
+├── refugia.sh             # Universal auto-installer (ONE COMMAND)
+├── install.sh             # Legacy native installer (kept for compatibility)
+├── setup.ps1              # Legacy Windows installer (kept for compatibility)
+├── docker-compose.yml     # Docker deployment
 ├── Makefile               # make start, make install, etc.
 ├── src/
 │   ├── cli.py             # CLI logic (argparse)
@@ -179,24 +184,27 @@ MIT — Use this code to survive.
 
 ## Instalar — Un Solo Comando
 
-Copiá y pegá UN comando. Instala todo (Python, Ollama, modelo IA) y arranca el servidor.
+Copiá y pegá UN comando. Detecta automáticamente tu sistema e instala todo (Python, Ollama, modelo IA) o usa Docker si está disponible.
 
-**Windows** (abrí PowerShell):
-```powershell
-irm https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/setup.ps1 | iex
-```
-
-**macOS / Linux** (abrí Terminal):
+**Cualquier SO** (Linux/macOS/Windows con WSL):
 ```bash
-git clone https://github.com/juampipey32/apocalipsis-agent.git && cd apocalipsis-agent && ./install.sh
+curl -fsSL https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/refugia.sh | bash
 ```
 
-**Docker** (si tenés [Docker Desktop](https://www.docker.com/products/docker-desktop/)):
+O si ya clonaste el repo:
 ```bash
-git clone https://github.com/juampipey32/apocalipsis-agent.git && cd apocalipsis-agent && docker compose up
+./refugia.sh
 ```
 
-Listo. El navegador se abre automáticamente en [http://localhost:8000](http://localhost:8000).
+Listo. El script automáticamente:
+- Detecta si Docker está disponible (lo usa si sí)
+- Usa instalación nativa si es necesario
+- Instala Python, Ollama y dependencias
+- Descarga modelos de IA
+- Indexa tus manuales PDF
+- Inicia el servidor y abre tu navegador
+
+El navegador se abre automáticamente en [http://localhost:8000](http://localhost:8000).
 
 ---
 
