@@ -1,1 +1,4 @@
-Nothing needs to be added to .gitignore since only a README.md file was modified and no build artifacts, dependencies, or temporary files were present in the changes.
+(refugia.sh is a shell script, which is source code - don't ignore)
+(README.md is a markdown file, which is documentation/source - don't ignore)
+
+(empty - no build artifacts, dependencies, or temp files to ignore)

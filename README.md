@@ -27,38 +27,27 @@
 
 **Copy-paste ONE command.** It installs everything (Python, Ollama, AI model optimized for your hardware) and starts the server.
 
-### 💻 Desktop (Windows / macOS / Linux)
+Copy-paste ONE command. It auto-detects your system and installs everything (Python, Ollama, AI model) or uses Docker if available.
 
-**Windows** (PowerShell as Administrator):
-```powershell
-irm https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/setup.ps1 | iex
-```
-
-**macOS / Linux** (Terminal):
+**Any OS** (Linux/macOS/Windows with WSL):
 ```bash
-curl -fsSL https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/refugia.sh | bash
 ```
 
-**Docker** (any OS with Docker Desktop):
+Or if you already cloned the repo:
 ```bash
-docker run -d -p 8000:8000 --name refugia juampipey32/refugia-os:latest
-# Or clone and use docker-compose:
-git clone https://github.com/juampipey32/apocalipsis-agent.git && cd apocalipsis-agent && docker compose up -d
+./refugia.sh
 ```
 
-### 📱 Mobile (Android / iOS)
+That's it. The script automatically:
+- Detects if Docker is available (uses it if yes)
+- Falls back to native installation if needed
+- Installs Python, Ollama, and dependencies
+- Downloads AI models
+- Indexes your PDF manuals
+- Starts the server and opens your browser
 
-RefugIA works as a **Progressive Web App (PWA)**. After installing on your desktop:
-
-1. **Find your PC's local IP**: `ipconfig` (Windows) or `ifconfig` (macOS/Linux)
-2. **On mobile**, open: `http://YOUR_IP:8000`
-3. **Install PWA**: 
-   - **Android (Chrome)**: Tap ⋮ → "Install app" or "Add to Home screen"
-   - **iOS (Safari)**: Tap Share → "Add to Home Screen"
-
-The app works **100% offline** after first load. No internet needed!
-
-> **Pro tip**: For mobile access across devices, start the server with: `REFUGIA_HOST=0.0.0.0 npm start`
+The browser opens automatically at [http://localhost:8000](http://localhost:8000).
 
 ---
 
@@ -187,8 +176,10 @@ else:              → gemma2:9b or llama3:70b (max intelligence)
 
 ```
 refugia-os/
-├── refugia                # CLI entry point
-├── install.sh             # One-command installer
+├── refugia.sh             # Universal auto-installer (ONE COMMAND)
+├── install.sh             # Legacy native installer (kept for compatibility)
+├── setup.ps1              # Legacy Windows installer (kept for compatibility)
+├── docker-compose.yml     # Docker deployment
 ├── Makefile               # make start, make install, etc.
 ├── src/
 │   ├── cli.py             # CLI logic (argparse)
@@ -242,36 +233,27 @@ MIT — Use this code to survive.
 
 ### Instalar — Un Solo Comando
 
-Copiá y pegá UN comando. Instala todo (Python, Ollama, modelo IA optimizado para tu hardware) y arranca el servidor.
+Copiá y pegá UN comando. Detecta automáticamente tu sistema e instala todo (Python, Ollama, modelo IA) o usa Docker si está disponible.
 
-**Windows** (abrí PowerShell como Administrador):
-```powershell
-irm https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/setup.ps1 | iex
-```
-
-**macOS / Linux** (abrí Terminal):
+**Cualquier SO** (Linux/macOS/Windows con WSL):
 ```bash
-curl -fsSL https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/refugia.sh | bash
 ```
 
-**Docker** (si tenés [Docker Desktop](https://www.docker.com/products/docker-desktop/)):
+O si ya clonaste el repo:
 ```bash
-docker run -d -p 8000:8000 --name refugia juampipey32/refugia-os:latest
-# O usá docker-compose:
-git clone https://github.com/juampipey32/apocalipsis-agent.git && cd apocalipsis-agent && docker compose up -d
+./refugia.sh
 ```
 
-### 📱 Móviles (Android / iOS)
+Listo. El script automáticamente:
+- Detecta si Docker está disponible (lo usa si sí)
+- Usa instalación nativa si es necesario
+- Instala Python, Ollama y dependencias
+- Descarga modelos de IA
+- Indexa tus manuales PDF
+- Inicia el servidor y abre tu navegador
 
-RefugIA funciona como **Progressive Web App (PWA)**. Después de instalar en tu PC:
-
-1. **Buscá la IP local de tu PC**: `ipconfig` (Windows) o `ifconfig` (macOS/Linux)
-2. **En el celular**, abrí: `http://TU_IP:8000`
-3. **Instalá la PWA**: 
-   - **Android (Chrome)**: Tocá ⋮ → "Instalar app" o "Agregar a pantalla de inicio"
-   - **iOS (Safari)**: Tocá Compartir → "Agregar a Inicio"
-
-¡La app funciona **100% offline** después de la primera carga!
+El navegador se abre automáticamente en [http://localhost:8000](http://localhost:8000).
 
 ---
 
