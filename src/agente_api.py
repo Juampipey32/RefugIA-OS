@@ -101,8 +101,22 @@ RESPUESTA DE REFUGIA:""",
 # Variable global para la cadena RAG
 qa_chain = None
 
+# Vectorstore global — se reutiliza en /api/status para evitar recargar el modelo
+vectorstore = None
+
 # Flag para saber si estamos en modo degradado
 modo_degradado = False
+
+
+def _get_vector_count() -> int:
+    """Devuelve la cantidad de vectores almacenados reutilizando el vectorstore global."""
+    if vectorstore is None:
+        return 0
+    try:
+        return vectorstore._collection.count()
+    except AttributeError:
+        # Fallback para versiones futuras de ChromaDB que remuevan _collection
+        return len(vectorstore.get()["ids"])
 
 
 def inicializar_rag():
@@ -115,7 +129,7 @@ def inicializar_rag():
 
     Si la DB no existe, entra en modo degradado sin crashear.
     """
-    global qa_chain, modo_degradado
+    global qa_chain, vectorstore, modo_degradado
 
     # --- Verificar si existe la base de datos vectorial ---
     if not CHROMA_DB_DIR.exists() or not any(CHROMA_DB_DIR.iterdir()):
@@ -147,7 +161,7 @@ def inicializar_rag():
         )
 
         # Verificar que hay documentos
-        doc_count = vectorstore._collection.count()
+        doc_count = _get_vector_count()
         if doc_count == 0:
             logger.warning("ChromaDB está vacía. Ejecuta el indexador primero.")
             modo_degradado = True
@@ -327,20 +341,12 @@ async def status():
     """
     Endpoint de estado del sistema.
     Útil para que el frontend sepa si el backend está operativo.
+    Reutiliza el vectorstore global — no recarga el modelo de embeddings.
     """
     vectores = 0
     if not modo_degradado:
         try:
-            embeddings = HuggingFaceEmbeddings(
-                model_name=EMBEDDING_MODEL,
-                model_kwargs={"device": "cpu"},
-            )
-            vectorstore = Chroma(
-                persist_directory=str(CHROMA_DB_DIR),
-                embedding_function=embeddings,
-                collection_name="manuales_supervivencia",
-            )
-            vectores = vectorstore._collection.count()
+            vectores = _get_vector_count()
         except Exception:
             pass
 
