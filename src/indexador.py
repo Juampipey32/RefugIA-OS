@@ -10,12 +10,22 @@
 # ============================================================
 
 import os
+
+# Desactivar la telemetría de ChromaDB (evita spam de errores en consola
+# y mantiene el sistema 100% offline). Debe ir antes de importar chroma.
+os.environ.setdefault("ANONYMIZED_TELEMETRY", "False")
+
 import sys
 import shutil
+import logging
 from pathlib import Path
 
+# Silenciar la telemetría de ChromaDB (incompatible con posthog en algunas
+# versiones; escupe errores ruidosos pero inofensivos).
+logging.getLogger("chromadb.telemetry").setLevel(logging.CRITICAL)
+
 # --- Langchain: Carga de documentos PDF ---
-from langchain_community.document_loaders import PyPDFDirectoryLoader
+from langchain_community.document_loaders import PyPDFLoader
 
 # --- Langchain: Fragmentación de texto ---
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -76,19 +86,50 @@ def verificar_manuales() -> bool:
     return True
 
 
+def _es_pdf_valido(ruta: Path) -> bool:
+    """
+    Comprueba que el archivo empieza con la cabecera mágica '%PDF'.
+    Evita que descargas fallidas (páginas HTML guardadas como .pdf)
+    rompan la indexación completa.
+    """
+    try:
+        with open(ruta, "rb") as fh:
+            return fh.read(5).startswith(b"%PDF")
+    except OSError:
+        return False
+
+
 def cargar_documentos():
     """
-    Carga todos los PDFs de la carpeta /manuales/ usando
-    PyPDFDirectoryLoader de Langchain.
+    Carga todos los PDFs de la carpeta /manuales/ uno por uno con
+    PyPDFLoader. Si un PDF está corrupto o no es un PDF real, se
+    omite con un aviso en lugar de abortar toda la indexación.
     Retorna una lista de objetos Document.
     """
     print("\n[1/4] Cargando documentos PDF...")
 
-    loader = PyPDFDirectoryLoader(str(MANUALES_DIR))
-    documentos = loader.load()
+    pdfs = sorted(MANUALES_DIR.glob("*.pdf"))
+    documentos = []
+    omitidos = []
+
+    for pdf in pdfs:
+        if not _es_pdf_valido(pdf):
+            print(f"[AVISO] '{pdf.name}' no es un PDF válido (cabecera incorrecta). Omitido.")
+            omitidos.append(pdf.name)
+            continue
+        try:
+            paginas = PyPDFLoader(str(pdf)).load()
+            documentos.extend(paginas)
+            print(f"     ✅ {pdf.name}: {len(paginas)} página(s)")
+        except Exception as e:
+            print(f"[AVISO] No se pudo leer '{pdf.name}': {e}. Omitido.")
+            omitidos.append(pdf.name)
+
+    if omitidos:
+        print(f"[INFO] {len(omitidos)} archivo(s) omitido(s): {', '.join(omitidos)}")
 
     if not documentos:
-        print("[ERROR] No se pudo extraer texto de los PDFs.")
+        print("[ERROR] No se pudo extraer texto de ningún PDF.")
         print("[INFO]  Verifica que los PDFs no estén protegidos o corruptos.")
         sys.exit(1)
 
@@ -169,6 +210,12 @@ def crear_base_vectorial(fragmentos: list, embeddings) -> None:
         embedding=embeddings,
         persist_directory=str(CHROMA_DB_DIR),
         collection_name="manuales_supervivencia",
+    )
+
+    # Recrear el .gitkeep para que la carpeta siga versionada en git
+    # (rmtree de arriba lo elimina en cada reindexación).
+    (CHROMA_DB_DIR / ".gitkeep").write_text(
+        "# ChromaDB almacenará los vectores aquí automáticamente\n"
     )
 
     # Verificar que los documentos se guardaron correctamente
