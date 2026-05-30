@@ -107,6 +107,7 @@
             font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
             margin-bottom: 4px; opacity: 0.6;
         }
+        .msg .time { font-size: 10px; color: var(--text-dim); margin-top: 2px; opacity: 0.7; }
         .typing { color: var(--green-dim); font-style: italic; font-size: 12px; padding: 8px 16px; }
         .typing::after { content: '█'; animation: blink 0.8s infinite; }
         @keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
@@ -263,6 +264,17 @@
                             <button onclick="modInventario('comida', 100)">+ 100</button>
                         </div>
                     </div>
+                    <div class="inv-card" id="cardBotiquin">
+                        <h3>💊 Botiquín</h3>
+                        <div class="value" id="botiquinVal">0</div>
+                        <div class="unit">dosis / unidades</div>
+                        <div class="bar-bg"><div class="bar-fill red" id="botiquinBar" style="width:0%"></div></div>
+                        <div class="inv-controls">
+                            <button onclick="modInventario('botiquin', -1)">− 1</button>
+                            <input type="number" id="botiquinInput" value="1" min="1" step="1">
+                            <button onclick="modInventario('botiquin', 1)">+ 1</button>
+                        </div>
+                    </div>
                     <div class="inv-log" id="invLog">
                         <h4>📋 Registro de Movimientos</h4>
                     </div>
@@ -336,17 +348,38 @@ function switchTab(tab) {
 // ============================================================
 //  CHAT
 // ============================================================
+const CHAT_HISTORY_KEY = 'refugia_chat_history';
+const CHAT_HISTORY_MAX = 50;
+
+function saveChatMessage(text, type) {
+    if (type === 'system') return;
+    const history = JSON.parse(localStorage.getItem(CHAT_HISTORY_KEY) || '[]');
+    history.push({ type, text });
+    if (history.length > CHAT_HISTORY_MAX) history.splice(0, history.length - CHAT_HISTORY_MAX);
+    localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(history));
+}
+
+function loadChatHistory() {
+    const history = JSON.parse(localStorage.getItem(CHAT_HISTORY_KEY) || '[]');
+    if (history.length === 0) return;
+    const container = document.getElementById('chatMessages');
+    container.innerHTML = '';
+    history.forEach(({ type, text }) => addMessage(text, type));
+}
+
 function addMessage(text, type) {
     const container = document.getElementById('chatMessages');
     const div = document.createElement('div');
     div.className = `msg ${type}`;
     const label = type === 'user' ? 'Tú' : 'RefugIA';
+    const timeStr = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
     if (type !== 'system') {
-        div.innerHTML = `<div class="label">${label}</div>${escapeHtml(text).replace(/\n/g, '<br>')}`;
+        div.innerHTML = `<div class="label">${label}</div><div class="time">${timeStr}</div>${escapeHtml(text).replace(/\n/g, '<br>')}`;
     } else {
         div.textContent = text;
     }
     container.appendChild(div);
+    saveChatMessage(text, type);
     container.scrollTop = container.scrollHeight;
 }
 
@@ -392,11 +425,7 @@ async function enviarMensaje() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('chatInput').addEventListener('keydown', e => {
-        if (e.key === 'Enter') enviarMensaje();
-    });
-});
+// (merged with the DOMContentLoaded below)
 
 // ============================================================
 //  BACKEND STATUS CHECK
@@ -422,13 +451,15 @@ setInterval(checkBackend, 15000);
 // ============================================================
 //  INVENTARIO
 // ============================================================
-const AGUA_MAX = 50; // litros
+const AGUA_MAX = 50;      // litros
 const COMIDA_MAX = 10000; // Kcal
+const BOTIQUIN_MAX = 200; // dosis/unidades
 
 function loadInventario() {
     return {
         agua: parseFloat(localStorage.getItem('refugia_agua') || '0'),
         comida: parseFloat(localStorage.getItem('refugia_comida') || '0'),
+        botiquin: parseFloat(localStorage.getItem('refugia_botiquin') || '0'),
         log: JSON.parse(localStorage.getItem('refugia_inv_log') || '[]'),
     };
 }
@@ -436,6 +467,7 @@ function loadInventario() {
 function saveInventario(inv) {
     localStorage.setItem('refugia_agua', inv.agua.toString());
     localStorage.setItem('refugia_comida', inv.comida.toString());
+    localStorage.setItem('refugia_botiquin', inv.botiquin.toString());
     localStorage.setItem('refugia_inv_log', JSON.stringify(inv.log.slice(-20)));
 }
 
@@ -443,16 +475,21 @@ function renderInventario() {
     const inv = loadInventario();
     document.getElementById('aguaVal').textContent = inv.agua.toFixed(1);
     document.getElementById('comidaVal').textContent = Math.round(inv.comida);
+    document.getElementById('botiquinVal').textContent = Math.round(inv.botiquin);
 
     const aguaPct = Math.min((inv.agua / AGUA_MAX) * 100, 100);
     const comidaPct = Math.min((inv.comida / COMIDA_MAX) * 100, 100);
+    const botiquinPct = Math.min((inv.botiquin / BOTIQUIN_MAX) * 100, 100);
     const aguaBar = document.getElementById('aguaBar');
     const comidaBar = document.getElementById('comidaBar');
+    const botiquinBar = document.getElementById('botiquinBar');
     aguaBar.style.width = aguaPct + '%';
     comidaBar.style.width = comidaPct + '%';
+    botiquinBar.style.width = botiquinPct + '%';
 
     aguaBar.className = 'bar-fill ' + (aguaPct > 40 ? 'green' : aguaPct > 15 ? 'amber' : 'red');
     comidaBar.className = 'bar-fill ' + (comidaPct > 40 ? 'green' : comidaPct > 15 ? 'amber' : 'red');
+    botiquinBar.className = 'bar-fill ' + (botiquinPct > 40 ? 'green' : botiquinPct > 15 ? 'amber' : 'red');
 
     // Render log
     const logContainer = document.getElementById('invLog');
@@ -464,14 +501,14 @@ function renderInventario() {
 
 function modInventario(tipo, delta) {
     const inv = loadInventario();
-    const inputId = tipo === 'agua' ? 'aguaInput' : 'comidaInput';
+    const inputId = tipo === 'agua' ? 'aguaInput' : tipo === 'comida' ? 'comidaInput' : 'botiquinInput';
     const customVal = parseFloat(document.getElementById(inputId).value) || Math.abs(delta);
     const realDelta = delta > 0 ? customVal : -customVal;
 
     inv[tipo] = Math.max(0, inv[tipo] + realDelta);
     const now = new Date();
     const timeStr = now.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
-    const unit = tipo === 'agua' ? 'L' : 'Kcal';
+    const unit = tipo === 'agua' ? 'L' : tipo === 'comida' ? 'Kcal' : 'u';
     const sign = realDelta >= 0 ? '+' : '';
     inv.log.push({ time: timeStr, text: `${tipo.toUpperCase()}: ${sign}${realDelta}${unit} → ${inv[tipo].toFixed(1)}${unit}` });
 
@@ -480,7 +517,13 @@ function modInventario(tipo, delta) {
 }
 
 // Init
-document.addEventListener('DOMContentLoaded', renderInventario);
+document.addEventListener('DOMContentLoaded', () => {
+    renderInventario();
+    loadChatHistory();
+    document.getElementById('chatInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter') enviarMensaje();
+    });
+});
 
 // ============================================================
 //  PWA: Service Worker & Install Prompt
