@@ -21,6 +21,9 @@ src/db/*
 # --- Configuración generada por el instalador ---
 .refugia-config.json
 
+# --- Artefactos de empaquetado npm ---
+*.tgz
+
 # --- Logs y temporales ---
 *.log
 .DS_Store

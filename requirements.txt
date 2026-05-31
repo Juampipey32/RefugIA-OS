@@ -4,6 +4,14 @@
 # Instalar con: pip install -r requirements.txt
 # ============================================================
 
+# --- PyTorch CPU-only --------------------------------------
+# sentence-transformers depende de torch. Por defecto, en Linux/Windows
+# pip descargaría la build con CUDA (~5 GB de paquetes nvidia-*) que no
+# sirve para inferencia en CPU. Este índice extra fuerza la rueda "+cpu"
+# (~200 MB). En macOS la rueda oficial de PyPI ya es CPU.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+
 # --- Framework Web ---
 fastapi==0.115.6
 uvicorn[standard]==0.34.0

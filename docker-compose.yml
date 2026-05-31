@@ -20,13 +20,20 @@ services:
     restart: unless-stopped
     # Pull model on first start
     entrypoint: ["/bin/sh", "-c", "ollama serve & sleep 5 && ollama pull ${REFUGIA_MODEL:-phi3} && wait"]
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
 
   # --- RefugIA: Survival AI backend + frontend ---
   refugia:
     build: .
     container_name: refugia-app
     depends_on:
-      - ollama
+      ollama:
+        condition: service_healthy
     environment:
       REFUGIA_MODEL: ${REFUGIA_MODEL:-phi3}
       OLLAMA_URL: http://ollama:11434

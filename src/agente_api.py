@@ -63,6 +63,11 @@ OLLAMA_BASE_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")
 # Puerto del servidor FastAPI
 API_PORT = int(os.environ.get("REFUGIA_PORT", "8000"))
 
+# Host de escucha. Por defecto 0.0.0.0 para permitir acceso desde otros
+# dispositivos de la red local (móviles, tablets). Usa 127.0.0.1 para
+# restringir el acceso solo a esta máquina.
+API_HOST = os.environ.get("REFUGIA_HOST", "0.0.0.0")
+
 # Configuración de logging
 logging.basicConfig(
     level=logging.INFO,
@@ -256,10 +261,12 @@ app = FastAPI(
 )
 
 # --- CORS: Permitir peticiones locales del frontend ---
+# allow_credentials debe ser False cuando allow_origins=["*"]; el navegador
+# rechaza esa combinación y el frontend no usa cookies ni credenciales.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En producción offline, esto es seguro
-    allow_credentials=True,
+    allow_origins=["*"],  # App offline en red local: cualquier origen es seguro
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -423,11 +430,11 @@ if __name__ == "__main__":
 
     logger.info(f"Modelo LLM configurado: {OLLAMA_MODEL}")
     logger.info(f"Ollama URL: {OLLAMA_BASE_URL}")
-    logger.info(f"Puerto: {API_PORT}")
+    logger.info(f"Host: {API_HOST}  Puerto: {API_PORT}")
 
     uvicorn.run(
         "agente_api:app",
-        host="0.0.0.0",       # Accesible desde cualquier dispositivo en la red local
+        host=API_HOST,        # Configurable con REFUGIA_HOST (def. 0.0.0.0 = red local)
         port=API_PORT,
         reload=False,          # Sin hot-reload en producción
         log_level="info",

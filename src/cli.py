@@ -100,6 +100,7 @@ def cmd_start(args):
 
     model = os.environ.get("REFUGIA_MODEL", "phi3")
     port = int(os.environ.get("REFUGIA_PORT", "8000"))
+    host = os.environ.get("REFUGIA_HOST", "0.0.0.0")
 
     print(f"  {CYAN}Model:{NC}  {model}")
     print(f"  {CYAN}Port:{NC}   {port}")
@@ -139,7 +140,7 @@ def cmd_start(args):
     import uvicorn
     uvicorn.run(
         "agente_api:app",
-        host="0.0.0.0",
+        host=host,
         port=port,
         reload=False,
         log_level="info",

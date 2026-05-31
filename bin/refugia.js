@@ -85,6 +85,7 @@ function cmdStart(args) {
 
   const model  = process.env.REFUGIA_MODEL || 'phi3';
   const port   = process.env.REFUGIA_PORT  || '8000';
+  const host   = process.env.REFUGIA_HOST  || '0.0.0.0';
 
   console.log(`  ${CYAN}Model:${RESET}  ${model}`);
   console.log(`  ${CYAN}Port:${RESET}   ${port}`);
@@ -109,7 +110,7 @@ function cmdStart(args) {
   const uvicornProc = spawn(
     PYTHON,
     ['-m', 'uvicorn', 'agente_api:app',
-     '--host', '0.0.0.0',
+     '--host', host,
      '--port', port,
      '--log-level', 'info',
     ],

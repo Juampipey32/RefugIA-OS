@@ -1,0 +1,29 @@
+# ============================================================
+# RefugIA OS — .dockerignore
+# ============================================================
+# Mantiene el contexto de build pequeño y reproducible.
+
+# Entornos y dependencias locales (se reinstalan dentro de la imagen)
+venv/
+.venv/
+env/
+node_modules/
+
+# Caches de Python
+__pycache__/
+*.py[cod]
+
+# Base vectorial generada (se reconstruye en el build con indexador.py)
+src/db/*
+!src/db/.gitkeep
+
+# Control de versiones y metadatos
+.git/
+.gitignore
+.dockerignore
+
+# Configuración y artefactos generados
+.refugia-config.json
+*.tgz
+*.log
+.DS_Store
