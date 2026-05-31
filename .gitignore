@@ -1,4 +1,26 @@
-(refugia.sh is a shell script, which is source code - don't ignore)
-(README.md is a markdown file, which is documentation/source - don't ignore)
+# ============================================================
+# RefugIA OS — .gitignore
+# ============================================================
 
-(empty - no build artifacts, dependencies, or temp files to ignore)
+# --- Python ---
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.Python
+
+# --- Dependencias de Node ---
+node_modules/
+
+# --- Base de datos vectorial generada (se reconstruye con: refugia index) ---
+src/db/*
+!src/db/.gitkeep
+
+# --- Configuración generada por el instalador ---
+.refugia-config.json
+
+# --- Logs y temporales ---
+*.log
+.DS_Store

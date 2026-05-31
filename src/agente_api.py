@@ -13,6 +13,11 @@
 # ============================================================
 
 import os
+
+# Desactivar la telemetría de ChromaDB (evita spam de errores en consola
+# y mantiene el sistema 100% offline). Debe ir antes de importar chroma.
+os.environ.setdefault("ANONYMIZED_TELEMETRY", "False")
+
 import sys
 import logging
 from pathlib import Path
@@ -65,6 +70,12 @@ logging.basicConfig(
     datefmt="%H:%M:%S",
 )
 logger = logging.getLogger("RefugIA")
+
+# Silenciar la telemetría de ChromaDB. En algunas versiones de chromadb el
+# cliente de telemetría es incompatible con posthog y escupe errores ruidosos
+# ("Failed to send telemetry event ...") aunque esté desactivada. No afecta
+# al funcionamiento, así que callamos su logger.
+logging.getLogger("chromadb.telemetry").setLevel(logging.CRITICAL)
 
 
 # ============================================================
