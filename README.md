@@ -23,33 +23,110 @@
 
 ---
 
-## 🚀 Install — One Command
+## 🚀 Installation — Pick Your Method
 
-**Copy-paste ONE command.** It installs everything (Python, Ollama, AI model optimized for your hardware) and starts the server.
+Every method ends the same way: the server runs at **[http://localhost:8000](http://localhost:8000)** and works 100% offline afterwards.
 
-Copy-paste ONE command. It auto-detects your system and installs everything (Python, Ollama, AI model) or uses Docker if available.
+| # | Method | Best for | One-liner |
+|---|--------|----------|-----------|
+| 1 | **Universal script** | Linux / macOS — fastest | `curl -fsSL https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/refugia.sh \| bash` |
+| 2 | **Windows (PowerShell)** | Windows 10 / 11 | `irm https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/setup.ps1 \| iex` |
+| 3 | **Docker Compose** | Isolated & reproducible | `docker compose up --build` |
+| 4 | **npm / Node** | Node developers | `npm install && npm start` |
+| 5 | **Makefile** | One target each | `make install && make start` |
+| 6 | **Manual** | Full control | see steps below |
 
-**Any OS** (Linux/macOS/Windows with WSL):
+> **Requirements:** Python **3.10–3.13** and ~2–5 GB free disk. The model download needs internet **once**; after that RefugIA is fully offline.
+
+---
+
+### 1. Universal script (Linux / macOS)
+
+Auto-detects Docker (uses it if present), otherwise installs natively: Python, Ollama, dependencies, the optimal AI model, indexes your PDFs and starts the server.
+
 ```bash
+# Remote (no clone needed)
 curl -fsSL https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/refugia.sh | bash
-```
 
-Or if you already cloned the repo:
-```bash
+# Or after cloning the repo
+git clone https://github.com/juampipey32/apocalipsis-agent.git
+cd apocalipsis-agent
 ./refugia.sh
 ```
 
-That's it. The script automatically:
-- Detects if Docker is available (uses it if yes)
-- Falls back to native installation if needed
-- Installs Python, Ollama, and dependencies
-- Downloads AI models
-- Indexes your PDF manuals
-- Starts the server and opens your browser
+There is also `./install.sh` — a native-only installer (no Docker auto-detection) kept for compatibility.
 
-The browser opens automatically at [http://localhost:8000](http://localhost:8000).
+### 2. Windows (PowerShell)
 
----
+Open PowerShell and run:
+
+```powershell
+irm https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/setup.ps1 | iex
+```
+
+It installs Python 3.12, Git and Ollama, clones the repo, sets everything up and starts the server. (Windows users can also use **method 4** if they already have Node, or **WSL** + method 1.)
+
+### 3. Docker Compose
+
+Runs RefugIA **and** Ollama together in containers — nothing else to install but Docker.
+
+```bash
+git clone https://github.com/juampipey32/apocalipsis-agent.git
+cd apocalipsis-agent
+docker compose up --build        # add -d to run in the background
+```
+
+First boot pulls the model (~2–4 GB) into a named volume, then it's offline. Your `manuales/` folder and the vector DB are mounted as volumes, so re-indexing persists. Pick a model with `REFUGIA_MODEL=llama3 docker compose up --build`.
+
+### 4. npm / Node
+
+The `npm install` step runs a `postinstall` script that creates the Python venv, installs dependencies, detects your hardware, pulls the best Ollama model and indexes the manuals.
+
+```bash
+git clone https://github.com/juampipey32/apocalipsis-agent.git
+cd apocalipsis-agent
+npm install            # full setup via postinstall
+npm start              # launch the server (alias of: node bin/refugia.js start)
+```
+
+Other scripts: `npm run index`, `npm run status`, `npm run doctor`. To get a global `refugia` command, run `npm link` inside the repo, then use `refugia start`, `refugia status`, etc.
+
+### 5. Makefile
+
+If you cloned the repo and have `make`:
+
+```bash
+make install     # runs ./install.sh
+make start       # launch the server
+make index       # (re)index the PDF manuals
+make status      # system status
+make doctor      # diagnose issues
+make clean       # remove venv + vector DB cache
+```
+
+### 6. Manual (step by step)
+
+For full control, or to debug:
+
+```bash
+git clone https://github.com/juampipey32/apocalipsis-agent.git
+cd apocalipsis-agent
+
+# 1) Install Ollama (https://ollama.com/download) and pull a model
+ollama pull phi3
+
+# 2) Python environment + dependencies
+python3 -m venv venv
+source venv/bin/activate            # Windows: venv\Scripts\activate
+pip install --upgrade pip
+pip install -r requirements.txt     # PyTorch installs CPU-only (~200 MB)
+
+# 3) Index the PDF survival manuals into ChromaDB
+python src/indexador.py
+
+# 4) Start the server
+python src/agente_api.py            # open http://localhost:8000
+```
 
 ---
 
@@ -72,18 +149,15 @@ The browser opens automatically at [http://localhost:8000](http://localhost:8000
 
 ### 🤖 Smart Model Detection
 
-RefugIA **automatically detects** the best local LLM for your hardware:
+The **npm installer** detects your hardware (RAM + GPU) and picks the model that will actually run well on it:
 
-| RAM Available | Model Selected | Performance |
-|---------------|----------------|-------------|
-| < 4 GB | `phi3` (3.8B) | Fast, minimal RAM |
-| 4-8 GB | `llama3:8b` | Balanced |
-| 8-16 GB | `mistral:7b` or `llama3:8b-instruct` | Enhanced reasoning |
-| > 16 GB | `gemma2:9b` or `llama3:70b` (if GPU) | Maximum intelligence |
+| Hardware | Model Selected | Why |
+|----------|----------------|-----|
+| Dedicated GPU + RAM ≥ 16 GB | `llama3` (8B) | Stronger reasoning, GPU-accelerated |
+| RAM ≥ 32 GB | `llama3` (8B) | Plenty of headroom |
+| Everything else (default) | `phi3` (3.8B) | Fast and light, runs anywhere |
 
-The installer checks your system and downloads the optimal model automatically!
-
----
+You can always override the choice with the `REFUGIA_MODEL` environment variable (e.g. `mistral`, `gemma2`) — see [Environment Variables](#environment-variables). The script/Docker installers default to `phi3` and don't auto-upgrade.
 
 ---
 
@@ -123,14 +197,17 @@ The installer checks your system and downloads the optimal model automatically!
 
 ## CLI Commands
 
+From inside the cloned repo, use the `./refugia` wrapper (it activates the venv for you):
+
 | Command | Description |
 |---|---|
-| `npx refugia start` | Launch the server and open browser |
-| `npx refugia index` | Index PDF survival manuals |
-| `npx refugia status` | Show system status |
-| `npx refugia doctor` | Diagnose common issues |
+| `./refugia start` | Launch the server and open the browser |
+| `./refugia index` | Index PDF survival manuals |
+| `./refugia status` | Show system status |
+| `./refugia doctor` | Diagnose common issues |
 
-Or use `npm start`, `npm run index`, `npm run status`, `npm run doctor`.
+Equivalents via npm: `npm start`, `npm run index`, `npm run status`, `npm run doctor`.
+After `npm link` (or a future `npm install -g`), the same commands work globally as `refugia start`, `refugia status`, etc. Add `--no-browser` to `start` to skip opening the browser.
 
 ---
 
@@ -159,32 +236,31 @@ REFUGIA_MODEL=llama3 ./refugia start
 | **GPU** | Not required | Optional (CUDA) | NVIDIA RTX |
 | **Mobile** | Any smartphone with browser | PWA installed | Offline mode |
 
-### Model Selection by Hardware
-
-RefugIA auto-detects your hardware and selects the optimal model:
-
-```python
-if RAM < 4GB:      → phi3:3.8b          (fast, minimal)
-elif RAM < 8GB:    → llama3:8b          (balanced)
-elif RAM < 16GB:   → mistral:7b-instruct (smart)
-else:              → gemma2:9b or llama3:70b (max intelligence)
-```
+(See [Smart Model Detection](#-smart-model-detection) above for exactly which model the installer picks.)
 
 ---
 
 ## Project Structure
 
 ```
-refugia-os/
-├── refugia.sh             # Universal auto-installer (ONE COMMAND)
-├── install.sh             # Legacy native installer (kept for compatibility)
-├── setup.ps1              # Legacy Windows installer (kept for compatibility)
-├── docker-compose.yml     # Docker deployment
+apocalipsis-agent/
+├── refugia.sh             # Universal auto-installer (Docker or native)
+├── install.sh             # Native-only installer (Linux/macOS)
+├── setup.ps1              # Windows installer (PowerShell)
+├── refugia                # CLI wrapper (activates venv → src/cli.py)
+├── docker-compose.yml     # Docker deployment (RefugIA + Ollama)
+├── Dockerfile             # Backend image
+├── .dockerignore          # Keeps the build context small
 ├── Makefile               # make start, make install, etc.
+├── package.json           # npm scripts + postinstall setup
+├── bin/
+│   └── refugia.js         # Node CLI entry point
+├── scripts/
+│   └── postinstall.js     # npm hardware detection + full setup
 ├── src/
 │   ├── cli.py             # CLI logic (argparse)
 │   ├── agente_api.py      # FastAPI backend + RAG
-│   ├── indexador.py        # PDF → ChromaDB indexer
+│   ├── indexador.py       # PDF → ChromaDB indexer
 │   └── db/                # ChromaDB vectorstore (generated)
 ├── frontend/
 │   ├── index.html         # Single-file SPA (CRT theme)
@@ -225,35 +301,114 @@ MIT — Use this code to survive.
 
 ---
 
----
-
 <div align="center">
 
 ## 🇪🇸 Español
 
-### Instalar — Un Solo Comando
+</div>
 
-Copiá y pegá UN comando. Detecta automáticamente tu sistema e instala todo (Python, Ollama, modelo IA) o usa Docker si está disponible.
+### Instalación — Elegí tu método
 
-**Cualquier SO** (Linux/macOS/Windows con WSL):
+Todos los métodos terminan igual: el servidor queda en **[http://localhost:8000](http://localhost:8000)** y funciona 100% offline después.
+
+| # | Método | Ideal para | Comando |
+|---|--------|-----------|---------|
+| 1 | **Script universal** | Linux / macOS — el más rápido | `curl -fsSL https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/refugia.sh \| bash` |
+| 2 | **Windows (PowerShell)** | Windows 10 / 11 | `irm https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/setup.ps1 \| iex` |
+| 3 | **Docker Compose** | Aislado y reproducible | `docker compose up --build` |
+| 4 | **npm / Node** | Desarrolladores Node | `npm install && npm start` |
+| 5 | **Makefile** | Un target para cada cosa | `make install && make start` |
+| 6 | **Manual** | Control total | ver pasos abajo |
+
+> **Requisitos:** Python **3.10–3.13** y ~2–5 GB de disco libre. La descarga del modelo necesita internet **una sola vez**; después RefugIA es 100% offline.
+
+#### 1. Script universal (Linux / macOS)
+
+Detecta Docker (lo usa si está), o instala de forma nativa: Python, Ollama, dependencias, el modelo óptimo, indexa tus PDFs y arranca el servidor.
+
 ```bash
+# Remoto (sin clonar)
 curl -fsSL https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/refugia.sh | bash
-```
 
-O si ya clonaste el repo:
-```bash
+# O después de clonar el repo
+git clone https://github.com/juampipey32/apocalipsis-agent.git
+cd apocalipsis-agent
 ./refugia.sh
 ```
 
-Listo. El script automáticamente:
-- Detecta si Docker está disponible (lo usa si sí)
-- Usa instalación nativa si es necesario
-- Instala Python, Ollama y dependencias
-- Descarga modelos de IA
-- Indexa tus manuales PDF
-- Inicia el servidor y abre tu navegador
+También existe `./install.sh`, un instalador solo-nativo (sin auto-detección de Docker).
 
-El navegador se abre automáticamente en [http://localhost:8000](http://localhost:8000).
+#### 2. Windows (PowerShell)
+
+Abrí PowerShell y ejecutá:
+
+```powershell
+irm https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/setup.ps1 | iex
+```
+
+Instala Python 3.12, Git y Ollama, clona el repo, configura todo y arranca el servidor. (En Windows también podés usar el **método 4** si ya tenés Node, o **WSL** + método 1.)
+
+#### 3. Docker Compose
+
+Levanta RefugIA **y** Ollama en contenedores — solo necesitás Docker.
+
+```bash
+git clone https://github.com/juampipey32/apocalipsis-agent.git
+cd apocalipsis-agent
+docker compose up --build        # agregá -d para correr en segundo plano
+```
+
+El primer arranque baja el modelo (~2–4 GB) a un volumen; después es offline. Tu carpeta `manuales/` y la base vectorial se montan como volúmenes, así que la reindexación persiste. Elegí modelo con `REFUGIA_MODEL=llama3 docker compose up --build`.
+
+#### 4. npm / Node
+
+El `npm install` corre un `postinstall` que crea el venv de Python, instala las dependencias, detecta tu hardware, baja el mejor modelo de Ollama e indexa los manuales.
+
+```bash
+git clone https://github.com/juampipey32/apocalipsis-agent.git
+cd apocalipsis-agent
+npm install            # setup completo vía postinstall
+npm start              # arranca el servidor
+```
+
+Otros scripts: `npm run index`, `npm run status`, `npm run doctor`. Para tener el comando global `refugia`, corré `npm link` dentro del repo.
+
+#### 5. Makefile
+
+Con el repo clonado y `make` disponible:
+
+```bash
+make install     # corre ./install.sh
+make start       # arranca el servidor
+make index       # (re)indexa los manuales PDF
+make status      # estado del sistema
+make doctor      # diagnostica problemas
+make clean       # borra venv + cache de la base vectorial
+```
+
+#### 6. Manual (paso a paso)
+
+Para control total o para depurar:
+
+```bash
+git clone https://github.com/juampipey32/apocalipsis-agent.git
+cd apocalipsis-agent
+
+# 1) Instalá Ollama (https://ollama.com/download) y bajá un modelo
+ollama pull phi3
+
+# 2) Entorno de Python + dependencias
+python3 -m venv venv
+source venv/bin/activate            # Windows: venv\Scripts\activate
+pip install --upgrade pip
+pip install -r requirements.txt     # PyTorch se instala en versión CPU (~200 MB)
+
+# 3) Indexá los manuales PDF en ChromaDB
+python src/indexador.py
+
+# 4) Arrancá el servidor
+python src/agente_api.py            # abrí http://localhost:8000
+```
 
 ---
 
@@ -276,29 +431,30 @@ El navegador se abre automáticamente en [http://localhost:8000](http://localhos
 
 ### 🤖 Detección Inteligente de Modelos
 
-RefugIA **detecta automáticamente** el mejor LLM local para tu hardware:
+El **instalador de npm** detecta tu hardware (RAM + GPU) y elige el modelo que realmente va a correr bien:
 
-| RAM Disponible | Modelo Seleccionado | Rendimiento |
-|----------------|---------------------|-------------|
-| < 4 GB | `phi3` (3.8B) | Rápido, mínimo RAM |
-| 4-8 GB | `llama3:8b` | Balanceado |
-| 8-16 GB | `mistral:7b-instruct` | Razonamiento mejorado |
-| > 16 GB | `gemma2:9b` o `llama3:70b` (con GPU) | Máxima inteligencia |
+| Hardware | Modelo Elegido | Por qué |
+|----------|----------------|---------|
+| GPU dedicada + RAM ≥ 16 GB | `llama3` (8B) | Más razonamiento, acelerado por GPU |
+| RAM ≥ 32 GB | `llama3` (8B) | Sobra memoria |
+| Todo lo demás (default) | `phi3` (3.8B) | Rápido y liviano, corre en cualquier lado |
 
-¡El instalador chequea tu sistema y descarga el modelo óptimo automáticamente!
+Siempre podés forzar otro modelo con la variable `REFUGIA_MODEL` (ej. `mistral`, `gemma2`). Los instaladores por script/Docker usan `phi3` por defecto.
 
 ---
 
 ## Comandos CLI
 
+Desde el repo clonado, usá el wrapper `./refugia` (activa el venv solo):
+
 | Comando | Descripción |
 |---------|-------------|
-| `npx refugia start` | Iniciar el servidor y abrir el navegador |
-| `npx refugia index` | Indexar manuales PDF de supervivencia |
-| `npx refugia status` | Mostrar estado del sistema |
-| `npx refugia doctor` | Diagnosticar problemas comunes |
+| `./refugia start` | Iniciar el servidor y abrir el navegador |
+| `./refugia index` | Indexar manuales PDF de supervivencia |
+| `./refugia status` | Mostrar estado del sistema |
+| `./refugia doctor` | Diagnosticar problemas comunes |
 
-O usá `npm start`, `npm run index`, `npm run status`, `npm run doctor`.
+Equivalentes con npm: `npm start`, `npm run index`, `npm run status`, `npm run doctor`. Tras `npm link` funcionan global como `refugia start`, etc.
 
 ---
 
