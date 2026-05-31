@@ -135,6 +135,51 @@ def _get_vector_count() -> int:
         return len(vectorstore.get()["ids"])
 
 
+def _contar_pdfs() -> int:
+    """Cuenta los PDFs disponibles en la carpeta de manuales."""
+    manuales = BASE_DIR / "manuales"
+    if not manuales.exists():
+        return 0
+    return len(list(manuales.glob("*.pdf")))
+
+
+def _indice_existe() -> bool:
+    """
+    Indica si hay un índice vectorial real. ChromaDB persistente siempre
+    crea 'chroma.sqlite3'; el .gitkeep no cuenta como índice.
+    """
+    return (CHROMA_DB_DIR / "chroma.sqlite3").exists()
+
+
+def _auto_indexar() -> None:
+    """
+    Construye el índice automáticamente si no existe pero hay PDFs.
+    Así el servidor queda operativo "full" sin pasos manuales, sin
+    importar cómo se haya arrancado (script, npm, Docker o a mano).
+    """
+    import sys as _sys
+
+    # Garantizar que el módulo indexador (en src/) sea importable
+    src_dir = str(Path(__file__).resolve().parent)
+    if src_dir not in _sys.path:
+        _sys.path.insert(0, src_dir)
+
+    logger.info("=" * 50)
+    logger.info("  📚 No se encontró índice. Indexando manuales automáticamente...")
+    logger.info("  (esto puede tardar en el primer arranque)")
+    logger.info("=" * 50)
+    try:
+        from indexador import construir_indice
+        n = construir_indice()
+        if n > 0:
+            logger.info(f"✅ Auto-indexado completo: {n} vectores")
+        else:
+            logger.warning("No había PDFs para indexar.")
+    except Exception as e:
+        logger.error(f"Auto-indexado falló: {e}")
+        logger.warning("Ejecuta manualmente: python src/indexador.py")
+
+
 def inicializar_rag():
     """
     Inicializa la cadena RAG completa:
@@ -143,17 +188,22 @@ def inicializar_rag():
     3. Configura Ollama LLM
     4. Crea la cadena RetrievalQA
 
-    Si la DB no existe, entra en modo degradado sin crashear.
+    Si no hay índice pero hay manuales, los indexa automáticamente.
+    Si aun así no hay datos, entra en modo degradado sin crashear.
     """
     global qa_chain, vectorstore, modo_degradado
 
+    # --- Auto-indexado: sin índice pero con PDFs → construirlo ahora ---
+    if not _indice_existe() and _contar_pdfs() > 0:
+        _auto_indexar()
+
     # --- Verificar si existe la base de datos vectorial ---
-    if not CHROMA_DB_DIR.exists() or not any(CHROMA_DB_DIR.iterdir()):
+    if not _indice_existe():
         logger.warning("=" * 50)
         logger.warning("  ⚠️  BASE DE DATOS VECTORIAL NO ENCONTRADA")
         logger.warning(f"  Ruta esperada: {CHROMA_DB_DIR}")
         logger.warning("  El servidor iniciará en MODO DEGRADADO.")
-        logger.warning("  Para indexar manuales ejecuta:")
+        logger.warning("  Agrega PDFs en 'manuales/' y reinicia, o ejecuta:")
         logger.warning("    python src/indexador.py")
         logger.warning("=" * 50)
         modo_degradado = True

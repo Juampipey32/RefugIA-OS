@@ -222,11 +222,17 @@ def crear_base_vectorial(fragmentos: list, embeddings) -> None:
     count = vectorstore._collection.count()
     print(f"[OK] Base de datos creada con {count} vectores")
     print(f"[OK] Persistida en: {CHROMA_DB_DIR}")
+    return count
 
 
-def main():
+def construir_indice() -> int:
     """
-    Pipeline principal de indexación.
+    Ejecuta el pipeline completo de indexación y devuelve la cantidad de
+    vectores creados (0 si no hay PDFs para indexar).
+
+    A diferencia de main(), NO llama a sys.exit, por lo que puede invocarse
+    de forma segura desde otros módulos (p. ej. el auto-indexado del
+    servidor al arrancar).
     """
     print("=" * 60)
     print("  RefugIA OS — Indexador de Manuales de Supervivencia")
@@ -237,9 +243,7 @@ def main():
 
     # Paso 0: Verificar que hay PDFs disponibles
     if not verificar_manuales():
-        print("\n[ABORTADO] No hay manuales para indexar.")
-        print("[AYUDA]    Coloca archivos PDF en la carpeta 'manuales/'")
-        sys.exit(1)
+        return 0
 
     # Paso 1: Cargar PDFs
     documentos = cargar_documentos()
@@ -251,7 +255,19 @@ def main():
     embeddings = crear_embeddings()
 
     # Paso 4: Crear base de datos vectorial
-    crear_base_vectorial(fragmentos, embeddings)
+    return crear_base_vectorial(fragmentos, embeddings)
+
+
+def main():
+    """
+    Pipeline principal de indexación (entrada por línea de comandos).
+    """
+    count = construir_indice()
+
+    if count == 0:
+        print("\n[ABORTADO] No hay manuales para indexar.")
+        print("[AYUDA]    Coloca archivos PDF en la carpeta 'manuales/'")
+        sys.exit(1)
 
     # Resumen final
     print("\n" + "=" * 60)

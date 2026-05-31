@@ -197,7 +197,11 @@ $pdfs = Get-ChildItem -Path "manuales\*.pdf" -ErrorAction SilentlyContinue
 if ($pdfs.Count -gt 0) {
     Write-Info "Indexing $($pdfs.Count) manual(s)..."
     & $pythonVenv src\indexador.py
-    Write-OK "Manuals indexed"
+    if ($LASTEXITCODE -eq 0) {
+        Write-OK "Manuals indexed"
+    } else {
+        Write-Amber "Indexing didn't finish now - the server will index automatically on first start."
+    }
 } else {
     Write-Amber "No PDFs found in manuales\. Add your manuals later and run: .\venv\Scripts\python.exe src\indexador.py"
 }

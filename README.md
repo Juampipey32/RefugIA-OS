@@ -277,9 +277,10 @@ apocalipsis-agent/
 
 ## Graceful Degradation
 
-RefugIA is designed to **never crash**:
+RefugIA is designed to **never crash** and to set itself up:
 
-- **No indexed manuals** — Server starts, responds with hardcoded survival tips
+- **Auto-indexing** — If PDFs exist in `manuales/` but no vector DB is found, the server **builds the index automatically on startup**. No matter how you launch it (script, npm, Docker or manually), it ends up fully operational — no manual indexing step required.
+- **No manuals & no PDFs** — Server starts, responds with hardcoded survival tips
 - **No Ollama running** — Chat returns friendly error with setup instructions
 - **No backend at all** — Frontend enters **Simulation Mode** with keyword-based responses
 
