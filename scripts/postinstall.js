@@ -152,17 +152,20 @@ if (!fs.existsSync(VENV)) {
 // ============================================================
 step('Step 3: Installing Python Dependencies');
 
-const pipCmd = IS_WIN
-  ? path.join(VENV, 'Scripts', 'pip.exe')
-  : path.join(VENV, 'bin', 'pip');
+// Use the venv's python with `-m pip` instead of the generated pip.exe.
+// On Windows, Smart App Control / WDAC can block the unsigned pip.exe shim
+// ("An Application Control policy blocked this file"); python.exe is signed.
+const venvPython = IS_WIN
+  ? path.join(VENV, 'Scripts', 'python.exe')
+  : path.join(VENV, 'bin', 'python');
 
 const reqFile = path.join(ROOT, 'requirements.txt');
 
 info('Upgrading pip...');
-spawnSync(pipCmd, ['install', '--upgrade', 'pip', '-q'], { stdio: 'inherit', cwd: ROOT });
+spawnSync(venvPython, ['-m', 'pip', 'install', '--upgrade', 'pip', '-q'], { stdio: 'inherit', cwd: ROOT });
 
 info('Installing Python dependencies (this may take a few minutes)...');
-const pipResult = spawnSync(pipCmd, ['install', '-r', reqFile, '-q', '--prefer-binary'], {
+const pipResult = spawnSync(venvPython, ['-m', 'pip', 'install', '-r', reqFile, '-q', '--prefer-binary'], {
   stdio: 'inherit',
   cwd: ROOT,
 });

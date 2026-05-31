@@ -134,15 +134,17 @@ if (-not (Test-Path "venv")) {
     Write-OK "Virtual environment already exists"
 }
 
-# Activate and install
-$pipExe = ".\venv\Scripts\pip.exe"
+# Activate and install.
+# Use the venv's python.exe with `-m pip` instead of the generated pip.exe:
+# Windows Smart App Control / WDAC blocks the unsigned pip.exe shim
+# ("An Application Control policy blocked this file"). python.exe is signed.
 $pythonVenv = ".\venv\Scripts\python.exe"
 
 Write-Info "Upgrading pip..."
 & $pythonVenv -m pip install --upgrade pip -q 2>$null
 
 Write-Info "Installing dependencies (this may take a few minutes)..."
-& $pipExe install -r requirements.txt -q --prefer-binary
+& $pythonVenv -m pip install -r requirements.txt -q --prefer-binary
 if ($LASTEXITCODE -ne 0) {
     Write-Fail "pip install failed. Check the output above for errors."
 }
