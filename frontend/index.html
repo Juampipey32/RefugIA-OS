@@ -20,24 +20,24 @@
         /* ===== RESET & BASE ===== */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
-            --amber: #ffb000; --amber-dim: #aa7700; --amber-glow: #ffb00040;
-            --green: #33ff33; --green-dim: #1a7a1a;
-            --bg: #0a0a0a; --bg-panel: #0d0d0d; --bg-input: #111;
-            --border: #1a1a1a; --text-dim: #555;
-            --danger: #ff4444; --success: #33ff33;
+            --amber: #ffc04d; --amber-dim: #d99c3a; --amber-glow: #ffb00040;
+            --green: #5cff5c; --green-dim: #3fbf3f;
+            --bg: #0d0d0d; --bg-panel: #161616; --bg-input: #1c1c1c;
+            --border: #333; --text-dim: #9a9a9a;
+            --danger: #ff5c5c; --success: #5cff5c;
             --font-mono: 'Share Tech Mono', monospace;
             --font-display: 'VT323', monospace;
         }
-        html, body { height: 100%; background: var(--bg); color: var(--amber); font-family: var(--font-mono); font-size: 14px; overflow: hidden; }
+        html, body { height: 100%; background: var(--bg); color: var(--amber); font-family: var(--font-mono); font-size: 15px; overflow: hidden; }
 
         /* ===== CRT EFFECT ===== */
         body::before {
             content: ''; position: fixed; inset: 0; z-index: 9999; pointer-events: none;
-            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 3px);
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.07) 0px, rgba(0,0,0,0.07) 1px, transparent 1px, transparent 3px);
         }
         body::after {
             content: ''; position: fixed; inset: 0; z-index: 9998; pointer-events: none;
-            background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.6) 100%);
+            background: radial-gradient(ellipse at center, transparent 65%, rgba(0,0,0,0.32) 100%);
         }
         @keyframes flicker { 0%,97%,100%{opacity:1} 98%{opacity:0.95} 99%{opacity:0.98} }
 
@@ -95,11 +95,11 @@
         }
         @keyframes msgIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
         .msg.user {
-            align-self: flex-end; background: #1a1500; border: 1px solid var(--amber-dim);
+            align-self: flex-end; background: #2e2400; border: 1px solid var(--amber-dim);
             color: var(--amber); border-bottom-right-radius: 0;
         }
         .msg.bot {
-            align-self: flex-start; background: #001a00; border: 1px solid var(--green-dim);
+            align-self: flex-start; background: #0c2a14; border: 1px solid var(--green-dim);
             color: var(--green); border-bottom-left-radius: 0;
         }
         .msg.system { align-self: center; color: var(--text-dim); font-size: 11px; text-align: center; border: none; background: none; }
