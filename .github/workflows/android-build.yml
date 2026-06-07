@@ -17,7 +17,7 @@ defaults:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 30   # evita que un build colgado quede corriendo indefinido
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,14 +31,13 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Cache Gradle
-        uses: actions/cache@v4
+      # Instala Gradle 9.3.1 (AGP 9.1.1 lo requiere) directo en el PATH y
+      # cachea distribución + dependencias. Evita el cuelgue de generar el
+      # wrapper con el gradle del sistema.
+      - name: Set up Gradle 9.3.1
+        uses: gradle/actions/setup-gradle@v4
         with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('mobile/android-app/**/*.gradle*', 'mobile/android-app/gradle/libs.versions.toml') }}
-          restore-keys: gradle-${{ runner.os }}-
+          gradle-version: "9.3.1"
 
       - name: Crear .env (placeholder para el plugin secrets)
         run: cp .env.example .env
@@ -46,18 +45,8 @@ jobs:
       - name: Decodificar debug.keystore
         run: base64 -d debug.keystore.base64 > debug.keystore
 
-      - name: Generar Gradle wrapper si falta
-        run: |
-          # AGP 9.1.1 (generado por AI Studio) requiere Gradle 9.3.1+
-          if [ ! -f gradlew ]; then
-            gradle wrapper --gradle-version 9.3.1
-          fi
-          chmod +x gradlew
-
-      # --no-daemon y --no-configuration-cache evitan cuelgues en CI; el
-      # configuration-cache de gradle.properties no aporta en un runner efímero.
       - name: Compilar APK de debug
-        run: ./gradlew :app:assembleDebug --no-daemon --no-configuration-cache --stacktrace
+        run: gradle :app:assembleDebug --no-daemon --no-configuration-cache --stacktrace
 
       - name: Subir APK como artefacto
         uses: actions/upload-artifact@v4
