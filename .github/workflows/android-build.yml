@@ -38,8 +38,9 @@ jobs:
 
       - name: Generar Gradle wrapper si falta
         run: |
+          # AGP 9.1.1 (generado por AI Studio) requiere Gradle 9.3.1+
           if [ ! -f gradlew ]; then
-            gradle wrapper --gradle-version 8.13
+            gradle wrapper --gradle-version 9.3.1
           fi
           chmod +x gradlew
 
