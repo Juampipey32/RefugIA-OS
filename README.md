@@ -145,7 +145,8 @@ python src/agente_api.py            # open http://localhost:8000
 | 📦 **Supply Management** | Track water, food, medicine with depletion alerts |
 | 🧭 **Navigation** | Orienteering, landmarks, emergency routes |
 | 🌡️ **Weather Survival** | Hypothermia prevention, heat stroke, storm shelter |
-| 📚 **Manual Indexing** | Auto-indexes any PDF survival guide you add |
+| 📚 **Manual Indexing** | Auto-indexes any survival guide you add (PDF, Markdown or TXT) |
+| 📱 **Mobile-ready RAG** | Pre-computed RAG index exportable for an offline on-device app (see `mobile/`) |
 
 ### 🤖 Smart Model Detection
 

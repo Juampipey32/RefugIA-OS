@@ -1,0 +1,56 @@
+name: Build Android APK (RefugIA)
+
+# Compila el APK de debug de la app móvil en la nube (no necesitás Android
+# SDK local). El APK queda como artefacto descargable en cada corrida.
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "mobile/android-app/**"
+      - ".github/workflows/android-build.yml"
+  workflow_dispatch: {}   # permite lanzarlo a mano desde la pestaña Actions
+
+defaults:
+  run:
+    working-directory: mobile/android-app
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20   # el build real toma ~3-4 min; margen de sobra
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      # Instala Gradle 9.3.1 (AGP 9.1.1 lo requiere) directo en el PATH y
+      # cachea distribución + dependencias. Evita el cuelgue de generar el
+      # wrapper con el gradle del sistema.
+      - name: Set up Gradle 9.3.1
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "9.3.1"
+
+      - name: Crear .env (placeholder para el plugin secrets)
+        run: cp .env.example .env
+
+      - name: Decodificar debug.keystore
+        run: base64 -d debug.keystore.base64 > debug.keystore
+
+      - name: Compilar APK de debug
+        run: gradle :app:assembleDebug --no-daemon --no-configuration-cache --stacktrace
+
+      - name: Subir APK como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: refugia-debug-apk
+          path: mobile/android-app/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error

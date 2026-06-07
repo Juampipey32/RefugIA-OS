@@ -1,0 +1,15 @@
+{
+  "appId": "com.refugia.survival",
+  "appName": "RefugIA",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "backgroundColor": "#0d0d0d",
+  "android": {
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  }
+}
