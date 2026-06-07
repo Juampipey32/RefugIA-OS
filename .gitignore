@@ -36,6 +36,18 @@ mobile/www/sw.js
 mobile/www/manifest.json
 mobile/www/icons/
 
+# --- App Android nativa (AI Studio): artefactos de build ---
+mobile/android-app/.gradle/
+mobile/android-app/build/
+mobile/android-app/app/build/
+mobile/android-app/.idea/
+mobile/android-app/local.properties
+mobile/android-app/.env
+mobile/android-app/debug.keystore
+mobile/android-app/.kotlin/
+# El índice RAG de assets SÍ se versiona: lo necesita la compilación en CI.
+# (mobile/android-app/app/src/main/assets/rag_index.json queda trackeado)
+
 # --- Logs y temporales ---
 *.log
 .DS_Store
