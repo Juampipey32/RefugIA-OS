@@ -51,26 +51,36 @@ fun ChatScreen(modifier: Modifier = Modifier) {
         addSys("CARGANDO MANUALES DE SUPERVIVENCIA...")
 
         coroutineScope.launch(Dispatchers.IO) {
-            // 1) Asegurar modelos GGUF (descarga única en el primer arranque).
-            if (!ModelDownloader.allPresent(context)) {
-                statusLabel = "DESCARGANDO MODELO DE IA..."
-                addSys("DESCARGANDO MODELO DE IA (SOLO LA PRIMERA VEZ)...")
-                ModelDownloader.ensureModels(context) { label, frac ->
-                    statusLabel = "$label ${(frac * 100).toInt()}%"
+            try {
+                // 1) Asegurar modelos GGUF (descarga única en el primer arranque).
+                if (!ModelDownloader.allPresent(context)) {
+                    statusLabel = "DESCARGANDO MODELO DE IA..."
+                    addSys("DESCARGANDO MODELO DE IA (SOLO LA PRIMERA VEZ, ~1.1 GB)...")
+                    addSys("USA WIFI. SE PUEDE REANUDAR SI SE CORTA.")
+                    ModelDownloader.ensureModels(context) { label, frac ->
+                        statusLabel = "$label ${(frac * 100).toInt()}%"
+                    }
+                    addSys("MODELOS DESCARGADOS OK.")
                 }
+                // 2) Cargar índice + modelos.
+                statusLabel = "CARGANDO MOTOR DE IA..."
+                val ok = agent.warmUp(
+                    genModelFile = ModelDownloader.genModelFile(context),
+                    embedModelFile = ModelDownloader.embedModelFile(context),
+                )
+                ready = ok
+                statusLabel = if (ok) "RAG ACTIVO — ON-DEVICE" else "MODO DEGRADADO"
+                addSys(
+                    if (ok) "SISTEMA OPERATIVO. ESCRIBE TU CONSULTA."
+                    else "NO SE PUDO CARGAR EL MOTOR (razón desconocida)."
+                )
+            } catch (e: Exception) {
+                ready = false
+                statusLabel = "MODO DEGRADADO — ERROR"
+                // Mostrar la causa REAL para poder diagnosticar.
+                addSys("ERROR: ${e.message ?: e.javaClass.simpleName}")
+                addSys("Verificá conexión/espacio y reiniciá la app para reintentar.")
             }
-            // 2) Cargar índice + modelos.
-            statusLabel = "CARGANDO MOTOR DE IA..."
-            val ok = agent.warmUp(
-                genModelFile = ModelDownloader.genModelFile(context),
-                embedModelFile = ModelDownloader.embedModelFile(context),
-            )
-            ready = ok
-            statusLabel = if (ok) "RAG ACTIVO — ON-DEVICE" else "MODO DEGRADADO — FALTA MODELO"
-            addSys(
-                if (ok) "SISTEMA OPERATIVO. ESCRIBE TU CONSULTA."
-                else "NO SE PUDO CARGAR EL MODELO. REVISA LA CONEXIÓN Y REINICIA."
-            )
         }
 
         try {

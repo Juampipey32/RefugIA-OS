@@ -33,9 +33,17 @@ class RefugiaAgent(
     suspend fun warmUp(genModelFile: File, embedModelFile: File): Boolean =
         withContext(Dispatchers.IO) {
             if (!rag.isLoaded) rag.load()
-            if (!genModelFile.exists() || !embedModelFile.exists()) return@withContext false
-            val ok = inference.load(genModelFile.absolutePath, embedModelFile.absolutePath)
-            ok && rag.isLoaded
+            if (!rag.isLoaded) {
+                throw IllegalStateException("No se pudo cargar el índice RAG (assets/rag_index.json).")
+            }
+            if (!genModelFile.exists()) {
+                throw IllegalStateException("Falta el modelo de generación: ${genModelFile.name}")
+            }
+            if (!embedModelFile.exists()) {
+                throw IllegalStateException("Falta el modelo de embeddings: ${embedModelFile.name}")
+            }
+            // inference.load lanza IllegalStateException con detalle si falla.
+            inference.load(genModelFile.absolutePath, embedModelFile.absolutePath)
         }
 
     fun state(): State = when {

@@ -28,10 +28,26 @@ class LlamatikEngine : InferenceEngine {
     override fun isReady(): Boolean = ready
 
     override fun load(genModelPath: String, embedModelPath: String): Boolean {
-        val genOk = LlamaBridge.initGenerateModel(genModelPath)
-        val embOk = LlamaBridge.initEmbedModel(embedModelPath)
-        ready = genOk && embOk
-        return ready
+        val genOk = try {
+            LlamaBridge.initGenerateModel(genModelPath)
+        } catch (e: Throwable) {
+            throw IllegalStateException("Fallo al cargar el modelo de generación: ${e.message}", e)
+        }
+        if (!genOk) {
+            throw IllegalStateException(
+                "El motor rechazó el modelo de generación (¿RAM insuficiente o GGUF incompatible?)."
+            )
+        }
+        val embOk = try {
+            LlamaBridge.initEmbedModel(embedModelPath)
+        } catch (e: Throwable) {
+            throw IllegalStateException("Fallo al cargar el modelo de embeddings: ${e.message}", e)
+        }
+        if (!embOk) {
+            throw IllegalStateException("El motor rechazó el modelo de embeddings.")
+        }
+        ready = true
+        return true
     }
 
     override fun embed(text: String): FloatArray = LlamaBridge.embed(text)
