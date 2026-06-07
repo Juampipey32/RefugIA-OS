@@ -15,8 +15,9 @@ import java.net.URL
  * vuelven a bajar.
  *
  * NOTA: URLs de descarga directa de Hugging Face (verificadas, HTTP 200).
- *   - GEN_MODEL_URL:   Qwen2.5-1.5B-Instruct Q4_K_M (~1.12 GB) — repo
- *     oficial de Qwen, buen rendimiento en español.
+ *   - GEN_MODEL_URL:   Llama-3.2-1B-Instruct Q4_K_M (~807 MB) — buen
+ *     multilingüe (español) y más liviano que modelos de 1.5B, para que la
+ *     descarga única complete en conexiones inestables.
  *   - EMBED_MODEL_URL: all-MiniLM-L6-v2 Q8_0 (~25 MB, 384 dims) — coincide
  *     con el modelo de embeddings de src/exportar_rag.py (all-MiniLM-L6-v2),
  *     necesario para que las similitudes contra rag_index.json sean válidas.
@@ -24,11 +25,11 @@ import java.net.URL
 object ModelDownloader {
 
     const val GEN_MODEL_URL =
-        "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf"
+        "https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q4_K_M.gguf"
     const val EMBED_MODEL_URL =
         "https://huggingface.co/second-state/All-MiniLM-L6-v2-Embedding-GGUF/resolve/main/all-MiniLM-L6-v2-Q8_0.gguf"
 
-    const val GEN_MODEL_NAME = "qwen2.5-1.5b-instruct-q4_k_m.gguf"
+    const val GEN_MODEL_NAME = "llama-3.2-1b-instruct-q4_k_m.gguf"
     const val EMBED_MODEL_NAME = "all-MiniLM-L6-v2-Q8_0.gguf"
 
     fun modelsDir(context: Context): File =
@@ -63,24 +64,42 @@ object ModelDownloader {
         allPresent(context)
     }
 
-    /** Descarga con reintentos + reanudación. Lanza IOException con detalle. */
+    /**
+     * Descarga con **reanudación** + reintento *mientras haya progreso*.
+     *
+     * Clave para conexiones inestables (celular): aunque el server corte la
+     * conexión a mitad ("Software caused connection abort"), guardamos lo
+     * bajado en .part y reanudamos con Range. Solo nos rendimos si pasan
+     * varios intentos SIN avanzar un solo byte. Así un archivo grande
+     * termina aunque la conexión se corte decenas de veces.
+     */
     private fun download(urlStr: String, dest: File, onProgress: (Float) -> Unit) {
         val tmp = File(dest.absolutePath + ".part")
-        val maxAttempts = 4
-        var attempt = 0
+        val maxNoProgress = 10 // intentos seguidos sin bajar nada → abandonar
+        var noProgress = 0
         while (true) {
-            attempt++
-            try {
+            val before = if (tmp.exists()) tmp.length() else 0L
+            val complete = try {
                 downloadOnce(urlStr, tmp, onProgress)
-                break
+            } catch (e: java.io.InterruptedIOException) {
+                throw e // timeout/cancelación: propagar
             } catch (e: Exception) {
-                if (attempt >= maxAttempts) {
+                false // corte de red: se evalúa el progreso abajo y se reintenta
+            }
+            if (complete) break
+            val after = if (tmp.exists()) tmp.length() else 0L
+            if (after > before) {
+                noProgress = 0 // avanzó algo → seguir reintentando sin penalizar
+            } else {
+                noProgress++
+                if (noProgress >= maxNoProgress) {
                     throw java.io.IOException(
-                        "No se pudo descargar ${dest.name} tras $maxAttempts intentos: ${e.message}", e
+                        "No se pudo descargar ${dest.name}: la conexión se corta sin avanzar " +
+                            "(${after / 1_000_000}MB bajados). Probá con mejor señal de WiFi."
                     )
                 }
-                Thread.sleep(2000L * attempt) // backoff: 2s, 4s, 6s
             }
+            Thread.sleep(minOf(2000L * noProgress.coerceAtLeast(1), 5000L))
         }
         if (!tmp.renameTo(dest)) {
             tmp.copyTo(dest, overwrite = true)
@@ -88,13 +107,15 @@ object ModelDownloader {
         }
     }
 
-    private fun downloadOnce(urlStr: String, tmp: File, onProgress: (Float) -> Unit) {
+    /** Un intento de descarga. Devuelve true si el archivo quedó completo. */
+    private fun downloadOnce(urlStr: String, tmp: File, onProgress: (Float) -> Unit): Boolean {
         val existing = if (tmp.exists()) tmp.length() else 0L
         val conn = (URL(urlStr).openConnection() as HttpURLConnection).apply {
             connectTimeout = 30_000
-            readTimeout = 120_000 // tolera stalls de red en celulares
+            readTimeout = 60_000 // tolera stalls; si excede, corta y reanuda
             instanceFollowRedirects = true
             setRequestProperty("User-Agent", "RefugIA-Android")
+            setRequestProperty("Accept-Encoding", "identity") // sin gzip → tamaños exactos
             if (existing > 0) setRequestProperty("Range", "bytes=$existing-")
         }
         conn.connect()
@@ -104,8 +125,13 @@ object ModelDownloader {
         }
         val resuming = code == 206 && existing > 0 // 206 = Partial Content
         if (!resuming && existing > 0) tmp.delete() // el server ignoró Range → de cero
-        val remaining = conn.contentLengthLong.coerceAtLeast(1L)
-        val total = if (resuming) existing + remaining else remaining
+
+        // Tamaño total real: preferimos el de Content-Range ("bytes a-b/total").
+        val totalFromRange = conn.getHeaderField("Content-Range")
+            ?.substringAfter('/', "")?.toLongOrNull()
+        val total = totalFromRange
+            ?: if (resuming) existing + conn.contentLengthLong.coerceAtLeast(1L)
+               else conn.contentLengthLong.coerceAtLeast(1L)
 
         // Chequeo de espacio libre (con 50 MB de colchón).
         val free = tmp.parentFile?.usableSpace ?: Long.MAX_VALUE
@@ -128,5 +154,6 @@ object ModelDownloader {
                 out.flush()
             }
         }
+        return tmp.length() >= total // completo solo si llegamos al tamaño real
     }
 }

@@ -30,8 +30,9 @@ RefugiaAgent                         ← orquesta el pipeline
   arranque (APK liviano + descarga única con internet) y quedan en
   `filesDir/models/`. URLs ya configuradas en `ModelDownloader.kt`
   (descarga directa de Hugging Face, verificadas):
-  - Generación: **Qwen2.5-1.5B-Instruct Q4_K_M** (~1.12 GB, repo oficial de
-    Qwen, buen español).
+  - Generación: **Llama-3.2-1B-Instruct Q4_K_M** (~807 MB, buen multilingüe;
+    más liviano que un 1.5B para que la descarga única complete en redes
+    inestables). La descarga reanuda y reintenta mientras haya progreso.
   - Embeddings: **all-MiniLM-L6-v2 Q8_0** (~25 MB, 384 dims) — coincide con
     `src/exportar_rag.py` (`all-MiniLM-L6-v2`), requisito para que la
     búsqueda coseno contra `rag_index.json` recupere chunks válidos.
