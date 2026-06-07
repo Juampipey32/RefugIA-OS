@@ -11,7 +11,7 @@ android {
 
   defaultConfig {
     applicationId = "com.aistudio.wastelandcomm.qwxz"
-    minSdk = 24
+    minSdk = 26 // Llamatik (llama.cpp) requiere minSdk 26 (Android 8.0)
     targetSdk = 36
     versionCode = 1
     versionName = "1.0"
