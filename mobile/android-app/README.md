@@ -28,10 +28,13 @@ RefugiaAgent                         ← orquesta el pipeline
   binding de llama.cpp con `generate` + `embed`.
 - **Modelos GGUF**: NO se empaquetan en el APK. Se descargan al primer
   arranque (APK liviano + descarga única con internet) y quedan en
-  `filesDir/models/`. Configurá las URLs en `ModelDownloader.kt`:
-  - Generación: Gemma 2 2B Q4 o Qwen2.5 1.5B Q4 (buen español).
-  - Embeddings: **all-MiniLM-L6-v2 GGUF, 384 dims, normalizado** — debe
-    coincidir con `src/exportar_rag.py` o la búsqueda no recupera nada.
+  `filesDir/models/`. URLs ya configuradas en `ModelDownloader.kt`
+  (descarga directa de Hugging Face, verificadas):
+  - Generación: **Qwen2.5-1.5B-Instruct Q4_K_M** (~1.12 GB, repo oficial de
+    Qwen, buen español).
+  - Embeddings: **all-MiniLM-L6-v2 Q8_0** (~25 MB, 384 dims) — coincide con
+    `src/exportar_rag.py` (`all-MiniLM-L6-v2`), requisito para que la
+    búsqueda coseno contra `rag_index.json` recupere chunks válidos.
 
 ## Compilar
 
@@ -61,11 +64,11 @@ nube. Descargalo desde la pestaña **Actions → run → Artifacts →
 - [x] Índice RAG embebido en assets
 - [x] **CI verde: GitHub Action compila el APK de debug (~63 MB) y lo
       publica como artefacto descargable**
-- [ ] Definir las URLs reales de los `.gguf` en `ModelDownloader.kt`
+- [x] **URLs de modelos GGUF configuradas y verificadas** (Qwen2.5-1.5B
+      Q4_K_M + all-MiniLM-L6-v2 Q8_0, descarga directa de Hugging Face)
 - [ ] Probar en dispositivo y ajustar parámetros de inferencia
 
 > El APK compila en GitHub Actions (ver pestaña **Actions → Artifacts →
-> `refugia-debug-apk`**). El único pendiente para que la app responda con
-> el LLM es poner las URLs reales de los modelos GGUF en `ModelDownloader.kt`.
-> Sin esas URLs, la app arranca con la UI y avisa que falta descargar el
-> modelo.
+> `refugia-debug-apk`**) y los modelos se descargan solos al primer
+> arranque. Pendiente sólo la prueba en un dispositivo real para afinar
+> parámetros de inferencia (n_ctx, temperatura, top_k del LLM).

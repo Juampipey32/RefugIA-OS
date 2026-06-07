@@ -14,19 +14,22 @@ import java.net.URL
  * Los archivos viven en context.filesDir/models/. Si ya existen, no se
  * vuelven a bajar.
  *
- * NOTA: poné aquí URLs de tus modelos GGUF (p. ej. desde Hugging Face).
- *   - GEN_MODEL_URL:   LLM de generación (Gemma 2 2B Q4 / Qwen2.5 1.5B Q4)
- *   - EMBED_MODEL_URL: all-MiniLM-L6-v2 GGUF (384 dims) — DEBE coincidir
- *     con el modelo de embeddings de src/exportar_rag.py.
+ * NOTA: URLs de descarga directa de Hugging Face (verificadas, HTTP 200).
+ *   - GEN_MODEL_URL:   Qwen2.5-1.5B-Instruct Q4_K_M (~1.12 GB) — repo
+ *     oficial de Qwen, buen rendimiento en español.
+ *   - EMBED_MODEL_URL: all-MiniLM-L6-v2 Q8_0 (~25 MB, 384 dims) — coincide
+ *     con el modelo de embeddings de src/exportar_rag.py (all-MiniLM-L6-v2),
+ *     necesario para que las similitudes contra rag_index.json sean válidas.
  */
 object ModelDownloader {
 
-    // TODO: reemplazar por las URLs reales de los .gguf elegidos.
-    const val GEN_MODEL_URL = "https://huggingface.co/REEMPLAZAR/gen-model-q4.gguf"
-    const val EMBED_MODEL_URL = "https://huggingface.co/REEMPLAZAR/all-MiniLM-L6-v2.gguf"
+    const val GEN_MODEL_URL =
+        "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf"
+    const val EMBED_MODEL_URL =
+        "https://huggingface.co/second-state/All-MiniLM-L6-v2-Embedding-GGUF/resolve/main/all-MiniLM-L6-v2-Q8_0.gguf"
 
-    const val GEN_MODEL_NAME = "gen-model-q4.gguf"
-    const val EMBED_MODEL_NAME = "all-MiniLM-L6-v2.gguf"
+    const val GEN_MODEL_NAME = "qwen2.5-1.5b-instruct-q4_k_m.gguf"
+    const val EMBED_MODEL_NAME = "all-MiniLM-L6-v2-Q8_0.gguf"
 
     fun modelsDir(context: Context): File =
         File(context.filesDir, "models").apply { mkdirs() }
