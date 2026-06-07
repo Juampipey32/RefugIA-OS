@@ -17,7 +17,7 @@ defaults:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20   # el build real toma ~3-4 min; margen de sobra
     steps:
       - name: Checkout
         uses: actions/checkout@v4

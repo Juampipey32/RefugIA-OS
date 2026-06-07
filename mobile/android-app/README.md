@@ -55,13 +55,17 @@ nube. Descargalo desde la pestaña **Actions → run → Artifacts →
 - [x] UI CRT (de AI Studio) conservada
 - [x] Swap de la IA de demo → agente RAG on-device
 - [x] Núcleo RAG (`RagEngine`) — lógica validada contra web/servidor
-- [x] Integración LLM vía Llamatik (`RefugiaAgent`)
+- [x] Integración LLM vía Llamatik (`RefugiaAgent`) — package
+      `com.llamatik.library.platform`, minSdk 26
 - [x] Descarga de modelos al primer arranque (`ModelDownloader`)
 - [x] Índice RAG embebido en assets
-- [x] CI: GitHub Action que compila el APK
+- [x] **CI verde: GitHub Action compila el APK de debug (~63 MB) y lo
+      publica como artefacto descargable**
 - [ ] Definir las URLs reales de los `.gguf` en `ModelDownloader.kt`
 - [ ] Probar en dispositivo y ajustar parámetros de inferencia
 
-> Nota: el código nativo no se pudo compilar en el entorno donde se hizo
-> el swap (sin Android SDK). La lógica RAG está validada de forma
-> independiente; la compilación se verifica vía GitHub Actions.
+> El APK compila en GitHub Actions (ver pestaña **Actions → Artifacts →
+> `refugia-debug-apk`**). El único pendiente para que la app responda con
+> el LLM es poner las URLs reales de los modelos GGUF en `ModelDownloader.kt`.
+> Sin esas URLs, la app arranca con la UI y avisa que falta descargar el
+> modelo.
