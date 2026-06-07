@@ -35,7 +35,8 @@ class RagEngine(private val context: Context) {
             "Sé conciso y directo; las vidas dependen de instrucciones claras. " +
             "Nunca sugieras llamar a emergencias o servicios externos: no existen. " +
             "Si el contexto no alcanza, dilo y pide más detalles. Responde en español " +
-            "usando pasos numerados cuando convenga."
+            "usando pasos numerados cuando convenga. Si hay conversación previa, " +
+            "tenela en cuenta para resolver repreguntas y referencias."
     }
 
     /** Carga el índice desde assets/. Costoso: llamar una vez, en background. */

@@ -65,9 +65,14 @@ nube. Descargalo desde la pestaña **Actions → run → Artifacts →
 - [x] Índice RAG embebido en assets
 - [x] **CI verde: GitHub Action compila el APK de debug (~63 MB) y lo
       publica como artefacto descargable**
-- [x] **URLs de modelos GGUF configuradas y verificadas** (Qwen2.5-1.5B
+- [x] **URLs de modelos GGUF configuradas y verificadas** (Llama-3.2-1B
       Q4_K_M + all-MiniLM-L6-v2 Q8_0, descarga directa de Hugging Face)
-- [ ] Probar en dispositivo y ajustar parámetros de inferencia
+- [x] **Probado en dispositivo real** (Redmi Note 13): descarga + inferencia
+      on-device funcionando
+- [x] **Memoria conversacional** (multi-turno acotado, repreguntas)
+- [x] **Feedback en UI** (cursor parpadeante al pensar, auto-scroll en
+      streaming, input bloqueado mientras responde)
+- [ ] Afinar parámetros de inferencia (n_ctx, temperatura) según uso
 
 > El APK compila en GitHub Actions (ver pestaña **Actions → Artifacts →
 > `refugia-debug-apk`**) y los modelos se descargan solos al primer
