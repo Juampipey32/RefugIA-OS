@@ -38,7 +38,8 @@ from indexador import (
 from langchain_huggingface import HuggingFaceEmbeddings
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-OUTPUT_DIR = BASE_DIR / "mobile" / "assets"
+# Se escribe directo en la carpeta que Capacitor empaqueta (mobile/www/assets).
+OUTPUT_DIR = BASE_DIR / "mobile" / "www" / "assets"
 OUTPUT_FILE = OUTPUT_DIR / "rag_index.json"
 
 # Formato del índice. Si cambia la estructura, subir la versión para

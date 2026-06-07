@@ -43,13 +43,62 @@ python src/exportar_rag.py
 
 - [x] Exportador de RAG (chunks + embeddings → JSON portable) — **listo y probado**
 - [x] Contenido base de manuales en español — **listo**
-- [ ] Proyecto Capacitor (config + build del APK)
-- [ ] Plugin nativo llama.cpp (inferencia on-device)
-- [ ] Descarga y gestión del modelo en el primer arranque
-- [ ] Búsqueda coseno + armado de prompt en el cliente
+- [x] Motor RAG on-device en JS (`www/refugia-engine.js`) — **listo y probado end-to-end**
+- [x] Frontend único compartido web/móvil (motor conectable) — **listo**
+- [x] Scaffold Capacitor (config + scripts de build) — **listo**
+- [ ] Plugin nativo llama.cpp (inferencia + embeddings on-device) — *pendiente, requiere NDK*
+- [ ] Descarga y gestión del modelo en el primer arranque — *pendiente*
 
-## Requisitos para compilar (en tu máquina)
+> El motor JS está completo y probado con un plugin nativo simulado: hace
+> la búsqueda coseno y arma el prompt correctamente. Falta solo la capa
+> nativa que ejecute el modelo (llama.cpp) y exponga `window.RefugIANative`.
+
+## Cómo se arma (en tu máquina con Android Studio)
+
+```bash
+cd mobile
+npm install                 # dependencias de Capacitor
+
+# 1) Generar el índice RAG embebido (desde la raíz del repo, con venv)
+npm run export:rag          # -> www/assets/rag_index.json
+
+# 2) Ensamblar www/ (copia el frontend único + inyecta el motor)
+npm run prepare:www
+
+# 3) Agregar la plataforma Android y sincronizar
+npm run add:android
+npm run sync
+
+# 4) Compilar el APK de debug
+npm run build:apk           # -> android/app/build/outputs/apk/debug/
+
+# o abrir en Android Studio para firmar/depurar
+npm run open:android
+```
+
+## El puente nativo que falta (`window.RefugIANative`)
+
+El motor JS (`www/refugia-engine.js`) espera un objeto inyectado por un
+plugin nativo de Capacitor con esta interfaz:
+
+```js
+window.RefugIANative = {
+  modelReady: async () => boolean,        // ¿el modelo está descargado y cargado?
+  embed:      async (text) => Float32Array, // embedding de 384 dims (all-MiniLM-L6-v2)
+  generate:   async (prompt) => string,     // inferencia con llama.cpp
+};
+```
+
+Recomendación de implementación:
+- **Inferencia LLM**: [`llama.cpp`](https://github.com/ggerganov/llama.cpp)
+  compilado para Android (NDK) vía JNI, o un wrapper existente (p. ej.
+  `llama.rn` portado, o `cui-llama`). Modelo GGUF Q4 (Gemma 2 2B / Qwen2.5 1.5B).
+- **Embeddings**: el modelo `all-MiniLM-L6-v2` en formato GGUF (modo
+  embedding de llama.cpp) o vía ONNX Runtime Mobile. Debe producir 384
+  dims normalizados, idéntico al exportador, para que la búsqueda coincida.
+
+## Requisitos para compilar
 
 - Node.js + `@capacitor/cli`
-- Android Studio + SDK (para el APK) / Xcode (para iOS)
-- NDK para compilar el plugin nativo de llama.cpp
+- Python + venv del repo (para `export:rag`)
+- Android Studio + SDK/NDK (APK) / Xcode (iOS)

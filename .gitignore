@@ -25,7 +25,16 @@ src/db/*
 *.tgz
 
 # --- Índice RAG generado para móvil (se regenera con exportar_rag.py) ---
-mobile/assets/rag_index.json
+mobile/www/assets/rag_index.json
+
+# --- Capacitor: dependencias y plataformas nativas generadas ---
+mobile/node_modules/
+mobile/android/
+mobile/ios/
+mobile/www/index.html
+mobile/www/sw.js
+mobile/www/manifest.json
+mobile/www/icons/
 
 # --- Logs y temporales ---
 *.log

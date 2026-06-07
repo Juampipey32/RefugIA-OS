@@ -407,16 +407,23 @@ async function enviarMensaje() {
     document.getElementById('typingIndicator').style.display = 'block';
 
     try {
-        const resp = await fetch(`${API_URL}/api/chat`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query }),
-        });
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        const data = await resp.json();
-        addMessage(data.respuesta, 'bot');
+        // Motor conectable: en la app móvil, window.RefugIAEngine corre el
+        // LLM on-device. En web, cae al backend HTTP. Misma UI para ambos.
+        if (window.RefugIAEngine && typeof window.RefugIAEngine.chat === 'function') {
+            const respuesta = await window.RefugIAEngine.chat(query);
+            addMessage(respuesta, 'bot');
+        } else {
+            const resp = await fetch(`${API_URL}/api/chat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query }),
+            });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const data = await resp.json();
+            addMessage(data.respuesta, 'bot');
+        }
     } catch (err) {
-        // Modo simulación cuando el backend no responde
+        // Modo simulación cuando ni el motor on-device ni el backend responden
         addMessage(getSimResponse(query), 'bot');
     } finally {
         document.getElementById('typingIndicator').style.display = 'none';
@@ -432,6 +439,22 @@ async function enviarMensaje() {
 // ============================================================
 async function checkBackend() {
     const badge = document.getElementById('statusBadge');
+
+    // Modo móvil on-device: el motor reporta su propio estado.
+    if (window.RefugIAEngine && typeof window.RefugIAEngine.status === 'function') {
+        try {
+            const s = await window.RefugIAEngine.status();
+            backendOnline = !!s.ready;
+            badge.textContent = s.ready ? 'ON-DEVICE' : (s.label || 'CARGANDO');
+            badge.className = 'status-badge ' + (s.ready ? 'online' : 'offline');
+        } catch {
+            backendOnline = false;
+            badge.textContent = 'ON-DEVICE';
+            badge.className = 'status-badge offline';
+        }
+        return;
+    }
+
     try {
         const r = await fetch(`${API_URL}/api/status`);
         if (r.ok) {
