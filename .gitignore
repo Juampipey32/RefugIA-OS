@@ -24,6 +24,9 @@ src/db/*
 # --- Artefactos de empaquetado npm ---
 *.tgz
 
+# --- Índice RAG generado para móvil (se regenera con exportar_rag.py) ---
+mobile/assets/rag_index.json
+
 # --- Logs y temporales ---
 *.log
 .DS_Store

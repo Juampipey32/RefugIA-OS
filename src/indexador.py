@@ -24,8 +24,9 @@ from pathlib import Path
 # versiones; escupe errores ruidosos pero inofensivos).
 logging.getLogger("chromadb.telemetry").setLevel(logging.CRITICAL)
 
-# --- Langchain: Carga de documentos PDF ---
+# --- Langchain: Carga de documentos ---
 from langchain_community.document_loaders import PyPDFLoader
+from langchain_core.documents import Document
 
 # --- Langchain: Fragmentación de texto ---
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -62,27 +63,40 @@ CHUNK_SIZE = 500
 CHUNK_OVERLAP = 50
 
 
+# Extensiones de manual soportadas. Además de PDF, aceptamos texto plano
+# y Markdown: ideal para contenido curado en español sin el ruido de
+# extracción que traen muchos PDFs.
+EXTENSIONES = ("*.pdf", "*.md", "*.txt")
+
+
+def _listar_manuales() -> list:
+    """Devuelve la lista ordenada de manuales soportados en la carpeta."""
+    archivos = []
+    for patron in EXTENSIONES:
+        archivos.extend(MANUALES_DIR.glob(patron))
+    return sorted(archivos)
+
+
 def verificar_manuales() -> bool:
     """
-    Verifica que la carpeta de manuales existe y contiene
-    al menos un archivo PDF.
+    Verifica que la carpeta de manuales existe y contiene al menos un
+    archivo soportado (PDF, Markdown o TXT).
     """
     if not MANUALES_DIR.exists():
         print(f"[ERROR] La carpeta de manuales no existe: {MANUALES_DIR}")
-        print("[INFO]  Crea la carpeta y coloca tus PDFs de supervivencia ahí.")
+        print("[INFO]  Crea la carpeta y coloca tus manuales (PDF/MD/TXT) ahí.")
         return False
 
-    pdfs = list(MANUALES_DIR.glob("*.pdf"))
-    if not pdfs:
-        print(f"[AVISO] No se encontraron PDFs en: {MANUALES_DIR}")
-        print("[INFO]  Coloca al menos un manual en formato PDF.")
+    archivos = _listar_manuales()
+    if not archivos:
+        print(f"[AVISO] No se encontraron manuales (PDF/MD/TXT) en: {MANUALES_DIR}")
+        print("[INFO]  Coloca al menos un manual.")
         return False
 
-    print(f"[OK] Se encontraron {len(pdfs)} archivo(s) PDF:")
-    for pdf in pdfs:
-        # Mostrar tamaño en MB para referencia
-        size_mb = pdf.stat().st_size / (1024 * 1024)
-        print(f"     📄 {pdf.name} ({size_mb:.1f} MB)")
+    print(f"[OK] Se encontraron {len(archivos)} manual(es):")
+    for f in archivos:
+        size_kb = f.stat().st_size / 1024
+        print(f"     📄 {f.name} ({size_kb:.0f} KB)")
     return True
 
 
@@ -99,42 +113,59 @@ def _es_pdf_valido(ruta: Path) -> bool:
         return False
 
 
+def _cargar_texto(ruta: Path) -> list:
+    """Carga un archivo .md/.txt como un único Document UTF-8."""
+    texto = ruta.read_text(encoding="utf-8", errors="ignore")
+    if not texto.strip():
+        return []
+    return [Document(page_content=texto, metadata={"source": str(ruta)})]
+
+
 def cargar_documentos():
     """
-    Carga todos los PDFs de la carpeta /manuales/ uno por uno con
-    PyPDFLoader. Si un PDF está corrupto o no es un PDF real, se
-    omite con un aviso en lugar de abortar toda la indexación.
+    Carga todos los manuales (PDF/MD/TXT) de la carpeta /manuales/ uno
+    por uno. Si un archivo está corrupto o vacío, se omite con un aviso
+    en lugar de abortar toda la indexación.
     Retorna una lista de objetos Document.
     """
-    print("\n[1/4] Cargando documentos PDF...")
+    print("\n[1/4] Cargando manuales...")
 
-    pdfs = sorted(MANUALES_DIR.glob("*.pdf"))
+    archivos = _listar_manuales()
     documentos = []
     omitidos = []
 
-    for pdf in pdfs:
-        if not _es_pdf_valido(pdf):
-            print(f"[AVISO] '{pdf.name}' no es un PDF válido (cabecera incorrecta). Omitido.")
-            omitidos.append(pdf.name)
-            continue
+    for f in archivos:
         try:
-            paginas = PyPDFLoader(str(pdf)).load()
-            documentos.extend(paginas)
-            print(f"     ✅ {pdf.name}: {len(paginas)} página(s)")
+            if f.suffix.lower() == ".pdf":
+                if not _es_pdf_valido(f):
+                    print(f"[AVISO] '{f.name}' no es un PDF válido (cabecera incorrecta). Omitido.")
+                    omitidos.append(f.name)
+                    continue
+                partes = PyPDFLoader(str(f)).load()
+            else:
+                partes = _cargar_texto(f)
+
+            if not partes:
+                print(f"[AVISO] '{f.name}' está vacío. Omitido.")
+                omitidos.append(f.name)
+                continue
+
+            documentos.extend(partes)
+            print(f"     ✅ {f.name}: {len(partes)} sección(es)")
         except Exception as e:
-            print(f"[AVISO] No se pudo leer '{pdf.name}': {e}. Omitido.")
-            omitidos.append(pdf.name)
+            print(f"[AVISO] No se pudo leer '{f.name}': {e}. Omitido.")
+            omitidos.append(f.name)
 
     if omitidos:
         print(f"[INFO] {len(omitidos)} archivo(s) omitido(s): {', '.join(omitidos)}")
 
     if not documentos:
-        print("[ERROR] No se pudo extraer texto de ningún PDF.")
-        print("[INFO]  Verifica que los PDFs no estén protegidos o corruptos.")
+        print("[ERROR] No se pudo extraer texto de ningún manual.")
+        print("[INFO]  Verifica que los archivos no estén protegidos o corruptos.")
         sys.exit(1)
 
     total_chars = sum(len(doc.page_content) for doc in documentos)
-    print(f"[OK] {len(documentos)} páginas cargadas ({total_chars:,} caracteres)")
+    print(f"[OK] {len(documentos)} sección(es) cargada(s) ({total_chars:,} caracteres)")
     return documentos
 
 
