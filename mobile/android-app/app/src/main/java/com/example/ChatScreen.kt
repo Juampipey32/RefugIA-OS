@@ -22,10 +22,17 @@ import androidx.compose.ui.unit.dp
 import com.example.rag.ModelDownloader
 import com.example.rag.RefugiaAgent
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.UUID
 
-data class Message(val id: String, val sender: String, val text: String, val isUser: Boolean)
+data class Message(
+    val id: String,
+    val sender: String,
+    val text: String,
+    val isUser: Boolean,
+    val streaming: Boolean = false, // true mientras el LLM piensa/escribe
+)
 
 @Composable
 fun ChatScreen(modifier: Modifier = Modifier) {
@@ -40,6 +47,8 @@ fun ChatScreen(modifier: Modifier = Modifier) {
     val agent = remember { RefugiaAgent(context) }
     var ready by remember { mutableStateOf(false) }
     var statusLabel by remember { mutableStateOf("INICIANDO SISTEMA...") }
+    // true mientras se genera una respuesta: bloquea el input y evita encimar.
+    var generating by remember { mutableStateOf(false) }
 
     fun addSys(text: String) =
         messages.add(Message(UUID.randomUUID().toString(), "SYS", text, false))
@@ -55,7 +64,7 @@ fun ChatScreen(modifier: Modifier = Modifier) {
                 // 1) Asegurar modelos GGUF (descarga única en el primer arranque).
                 if (!ModelDownloader.allPresent(context)) {
                     statusLabel = "DESCARGANDO MODELO DE IA..."
-                    addSys("DESCARGANDO MODELO DE IA (SOLO LA PRIMERA VEZ, ~1.1 GB)...")
+                    addSys("DESCARGANDO MODELO DE IA (SOLO LA PRIMERA VEZ, ~0.8 GB)...")
                     addSys("USA WIFI. SE PUEDE REANUDAR SI SE CORTA.")
                     ModelDownloader.ensureModels(context) { label, frac ->
                         statusLabel = "$label ${(frac * 100).toInt()}%"
@@ -87,6 +96,15 @@ fun ChatScreen(modifier: Modifier = Modifier) {
             focusRequester.requestFocus()
         } catch (e: Exception) {
             // Ignorar error de foco en preview o ciertos estados
+        }
+    }
+
+    // Auto-scroll al fondo cuando llega un mensaje nuevo o crece el streaming.
+    // Scroll instantáneo: durante el streaming se dispara muy seguido y una
+    // animación competiría consigo misma.
+    LaunchedEffect(messages.size, messages.lastOrNull()?.text) {
+        if (messages.isNotEmpty()) {
+            listState.scrollToItem(messages.lastIndex)
         }
     }
 
@@ -127,8 +145,10 @@ fun ChatScreen(modifier: Modifier = Modifier) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "USER> ",
-                    color = MaterialTheme.colorScheme.primary,
+                    // El prompt se atenúa mientras el sistema está ocupado.
+                    text = if (generating) "WAIT> " else "USER> ",
+                    color = if (generating) MaterialTheme.colorScheme.tertiary
+                            else MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.bodyLarge
                 )
                 BasicTextField(
@@ -137,41 +157,48 @@ fun ChatScreen(modifier: Modifier = Modifier) {
                         if (it.length > inputText.length) SoundManager.playKeystroke()
                         inputText = it
                     },
+                    enabled = !generating, // bloqueado mientras responde
                     modifier = Modifier
                         .weight(1f)
                         .focusRequester(focusRequester),
                     textStyle = MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.primary
+                        color = if (generating) MaterialTheme.colorScheme.tertiary
+                                else MaterialTheme.colorScheme.primary
                     ),
                     cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
                     keyboardActions = KeyboardActions(
                         onSend = {
                             val userText = inputText.trim()
-                            if (userText.isNotBlank()) {
+                            if (userText.isNotBlank() && !generating) {
                                 messages.add(Message(UUID.randomUUID().toString(), "USER", userText, true))
                                 inputText = ""
 
-                                coroutineScope.launch {
-                                    listState.scrollToItem(messages.size - 1)
-
-                                    if (!ready) {
-                                        addSys(statusLabel)
-                                        listState.scrollToItem(messages.size - 1)
-                                        return@launch
-                                    }
-
-                                    // Mensaje del bot que se completa con streaming.
+                                if (!ready) {
+                                    // Aún sin modelo: avisar el estado y no generar.
+                                    addSys(statusLabel)
+                                } else {
+                                    generating = true
+                                    // Mensaje del bot: arranca vacío con cursor
+                                    // (pensando) y se completa con streaming.
                                     val botId = UUID.randomUUID().toString()
-                                    messages.add(Message(botId, "REFUGIA", "", false))
-                                    val botIndex = messages.size - 1
+                                    messages.add(Message(botId, "REFUGIA", "", false, streaming = true))
+                                    val botIndex = messages.lastIndex
 
-                                    agent.ask(userText) { token ->
-                                        val cur = messages[botIndex]
-                                        messages[botIndex] = cur.copy(text = cur.text + token)
-                                        SoundManager.playReceive()
+                                    coroutineScope.launch {
+                                        try {
+                                            agent.ask(userText) { token ->
+                                                val cur = messages[botIndex]
+                                                messages[botIndex] = cur.copy(text = cur.text + token)
+                                                SoundManager.playReceive()
+                                            }
+                                        } finally {
+                                            // Apagar el cursor y desbloquear el input.
+                                            val done = messages[botIndex]
+                                            messages[botIndex] = done.copy(streaming = false)
+                                            generating = false
+                                        }
                                     }
-                                    listState.scrollToItem(messages.size - 1)
                                 }
                             }
                         }
@@ -191,13 +218,25 @@ fun ChatScreen(modifier: Modifier = Modifier) {
 @Composable
 fun TypewriterMessage(message: Message) {
     // El bot llega en streaming token a token desde el agente; el usuario y
-    // los mensajes de sistema, directos. Se elimina el typewriter artificial
-    // para no duplicar el efecto de streaming real del LLM.
+    // los mensajes de sistema, directos. Mientras está en streaming (incluido
+    // el rato que "piensa" antes del primer token) mostramos un cursor de
+    // bloque que parpadea, como una terminal real.
     val senderColor =
         if (message.isUser) MaterialTheme.colorScheme.secondary
         else MaterialTheme.colorScheme.primary
+
+    val cursor = if (message.streaming) {
+        val blink by produceState(initialValue = true) {
+            while (true) {
+                delay(500)
+                value = !value
+            }
+        }
+        if (blink) "▋" else " "
+    } else ""
+
     Text(
-        text = "${message.sender}> ${message.text}",
+        text = "${message.sender}> ${message.text}$cursor",
         color = senderColor,
         style = MaterialTheme.typography.bodyLarge,
         modifier = Modifier.padding(vertical = 4.dp)
