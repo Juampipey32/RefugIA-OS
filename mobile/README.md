@@ -4,7 +4,21 @@ App de supervivencia con IA **100% on-device**: un LLM chico cuantizado y
 el RAG de los manuales corren dentro del teléfono, sin servidor ni internet
 (salvo la descarga inicial del modelo).
 
-## Arquitectura elegida
+## Dos caminos para construirla
+
+Ambos comparten el mismo RAG y el mismo índice exportado; cambia el envoltorio:
+
+| Camino | Carpeta | UI | Cuándo usarlo |
+|--------|---------|----|---------------|
+| **Capacitor** | `www/` | Reutiliza la TUI web (`../frontend`) | Multiplataforma (Android+iOS), reuso total de la interfaz |
+| **Nativo / AI Studio** | `android-native/` | Kotlin + Jetpack Compose | Generás el cascarón en AI Studio y reemplazás su IA-nube por la local |
+
+> **Nota sobre Google AI Studio (2026):** compila APK nativos Kotlin/Compose
+> y los publica a Play, pero las apps que genera usan la **API de Gemini en
+> la nube** (necesitan internet). Para RefugIA usamos su cascarón nativo y
+> reemplazamos esa llamada por inferencia local: ver `android-native/`.
+
+## Arquitectura (camino Capacitor)
 
 - **Envoltorio**: [Capacitor](https://capacitorjs.com) — reutiliza el
   frontend web existente (`../frontend/index.html`) dentro de un APK/IPA.
