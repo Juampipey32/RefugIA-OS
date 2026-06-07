@@ -1,14 +1,15 @@
 package com.example.rag
 
-import com.llamatik.library.GenStream
-import com.llamatik.library.LlamaBridge
+import com.llamatik.library.platform.GenStream
+import com.llamatik.library.platform.LlamaBridge
 
 /**
  * Implementación de [InferenceEngine] con Llamatik (llama.cpp on-device).
  *
  * ⚠️ PUNTO ÚNICO DE AJUSTE DE API ⚠️
- * Si la compilación falla por nombres de Llamatik (versión 1.7.0), el
- * único lugar a tocar es ESTA clase. Las firmas usadas, según el README:
+ * Si la compilación falla por nombres de Llamatik, el único lugar a tocar
+ * es ESTA clase. Clases en el package com.llamatik.library.platform
+ * (verificado contra el sources.jar del artefacto). Firmas usadas:
  *   - LlamaBridge.initGenerateModel(path): Boolean
  *   - LlamaBridge.initEmbedModel(path): Boolean
  *   - LlamaBridge.embed(text): FloatArray
