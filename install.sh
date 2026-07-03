@@ -4,7 +4,7 @@
 # ============================================================
 # Usage:
 #   ./install.sh
-#   curl -fsSL https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/juampipey32/RefugIA-OS/main/install.sh | bash
 # ============================================================
 
 set -euo pipefail

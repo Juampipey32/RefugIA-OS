@@ -3,7 +3,7 @@
 # RefugIA OS — Universal Auto Installer
 # ============================================================
 # ONE COMMAND to install and run RefugIA on ANY system:
-#   curl -fsSL https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/refugia.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/juampipey32/RefugIA-OS/main/refugia.sh | bash
 #
 # This script automatically:
 #   1. Detects the best installation method (Docker or native)

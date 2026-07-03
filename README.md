@@ -27,13 +27,13 @@
 
 > **🌍 Guía de emergencia web (terremotos, primeros auxilios, agua segura):**
 >
-> ### 👉 [juampipey32.github.io/apocalipsis-agent](https://juampipey32.github.io/apocalipsis-agent/) 👈
+> ### 👉 [juampipey32.github.io/RefugIA-OS](https://juampipey32.github.io/RefugIA-OS/) 👈
 >
 > - **No requiere instalación.** Se abre en cualquier teléfono o computadora.
 > - **Funciona sin internet** después de abrirla una vez (guárdala ANTES de necesitarla).
 > - **Compártela por WhatsApp:** el link puede salvarle tiempo crítico a alguien.
 > - Incluye: qué hacer durante y después de un terremoto, réplicas, personas atrapadas, primeros auxilios, agua segura, inventario de recursos y kit de emergencia.
-> - **[🖨️ Cartel con QR para imprimir/compartir](https://juampipey32.github.io/apocalipsis-agent/cartel-qr.png)** — pégalo en refugios, farmacias, carteleras.
+> - **[🖨️ Cartel con QR para imprimir/compartir](https://juampipey32.github.io/RefugIA-OS/cartel-qr.png)** — pégalo en refugios, farmacias, carteleras.
 >
 > La guía se genera desde los manuales de `manuales/` con `python scripts/build_web.py`. Todo lo que sigue abajo (servidor local + IA) es la versión avanzada y **opcional**.
 
@@ -45,8 +45,8 @@ Every method ends the same way: the server runs at **[http://localhost:8000](htt
 
 | # | Method | Best for | One-liner |
 |---|--------|----------|-----------|
-| 1 | **Universal script** | Linux / macOS — fastest | `curl -fsSL https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/refugia.sh \| bash` |
-| 2 | **Windows (PowerShell)** | Windows 10 / 11 | `irm https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/setup.ps1 \| iex` |
+| 1 | **Universal script** | Linux / macOS — fastest | `curl -fsSL https://raw.githubusercontent.com/juampipey32/RefugIA-OS/main/refugia.sh \| bash` |
+| 2 | **Windows (PowerShell)** | Windows 10 / 11 | `irm https://raw.githubusercontent.com/juampipey32/RefugIA-OS/main/setup.ps1 \| iex` |
 | 3 | **Docker Compose** | Isolated & reproducible | `docker compose up --build` |
 | 4 | **npm / Node** | Node developers | `npm install && npm start` |
 | 5 | **Makefile** | One target each | `make install && make start` |
@@ -62,11 +62,11 @@ Auto-detects Docker (uses it if present), otherwise installs natively: Python, O
 
 ```bash
 # Remote (no clone needed)
-curl -fsSL https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/refugia.sh | bash
+curl -fsSL https://raw.githubusercontent.com/juampipey32/RefugIA-OS/main/refugia.sh | bash
 
 # Or after cloning the repo
-git clone https://github.com/juampipey32/apocalipsis-agent.git
-cd apocalipsis-agent
+git clone https://github.com/juampipey32/RefugIA-OS.git
+cd RefugIA-OS
 ./refugia.sh
 ```
 
@@ -77,7 +77,7 @@ There is also `./install.sh` — a native-only installer (no Docker auto-detecti
 Open PowerShell and run:
 
 ```powershell
-irm https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/setup.ps1 | iex
+irm https://raw.githubusercontent.com/juampipey32/RefugIA-OS/main/setup.ps1 | iex
 ```
 
 It installs Python 3.12, Git and Ollama, clones the repo, sets everything up and starts the server. (Windows users can also use **method 4** if they already have Node, or **WSL** + method 1.)
@@ -87,8 +87,8 @@ It installs Python 3.12, Git and Ollama, clones the repo, sets everything up and
 Runs RefugIA **and** Ollama together in containers — nothing else to install but Docker.
 
 ```bash
-git clone https://github.com/juampipey32/apocalipsis-agent.git
-cd apocalipsis-agent
+git clone https://github.com/juampipey32/RefugIA-OS.git
+cd RefugIA-OS
 docker compose up --build        # add -d to run in the background
 ```
 
@@ -99,8 +99,8 @@ First boot pulls the model (~2–4 GB) into a named volume, then it's offline. Y
 The `npm install` step runs a `postinstall` script that creates the Python venv, installs dependencies, detects your hardware, pulls the best Ollama model and indexes the manuals.
 
 ```bash
-git clone https://github.com/juampipey32/apocalipsis-agent.git
-cd apocalipsis-agent
+git clone https://github.com/juampipey32/RefugIA-OS.git
+cd RefugIA-OS
 npm install            # full setup via postinstall
 npm start              # launch the server (alias of: node bin/refugia.js start)
 ```
@@ -125,8 +125,8 @@ make clean       # remove venv + vector DB cache
 For full control, or to debug:
 
 ```bash
-git clone https://github.com/juampipey32/apocalipsis-agent.git
-cd apocalipsis-agent
+git clone https://github.com/juampipey32/RefugIA-OS.git
+cd RefugIA-OS
 
 # 1) Install Ollama (https://ollama.com/download) and pull a model
 ollama pull phi3
@@ -260,7 +260,7 @@ REFUGIA_MODEL=llama3 ./refugia start
 ## Project Structure
 
 ```
-apocalipsis-agent/
+RefugIA-OS/
 ├── refugia.sh             # Universal auto-installer (Docker or native)
 ├── install.sh             # Native-only installer (Linux/macOS)
 ├── setup.ps1              # Windows installer (PowerShell)
@@ -331,7 +331,7 @@ MIT — Use this code to survive.
 
 ### 🚨 ¿Emergencia? Usá la guía web sin instalar nada
 
-**[juampipey32.github.io/apocalipsis-agent](https://juampipey32.github.io/apocalipsis-agent/)** — se abre en cualquier teléfono, funciona **sin internet** después de la primera carga, y se comparte por WhatsApp. Qué hacer en un terremoto, réplicas, primeros auxilios, agua segura, inventario y kit de emergencia. Lo que sigue abajo es la versión avanzada con IA local (opcional).
+**[juampipey32.github.io/RefugIA-OS](https://juampipey32.github.io/RefugIA-OS/)** — se abre en cualquier teléfono, funciona **sin internet** después de la primera carga, y se comparte por WhatsApp. Qué hacer en un terremoto, réplicas, primeros auxilios, agua segura, inventario y kit de emergencia. Lo que sigue abajo es la versión avanzada con IA local (opcional).
 
 ### Instalación — Elegí tu método
 
@@ -339,8 +339,8 @@ Todos los métodos terminan igual: el servidor queda en **[http://localhost:8000
 
 | # | Método | Ideal para | Comando |
 |---|--------|-----------|---------|
-| 1 | **Script universal** | Linux / macOS — el más rápido | `curl -fsSL https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/refugia.sh \| bash` |
-| 2 | **Windows (PowerShell)** | Windows 10 / 11 | `irm https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/setup.ps1 \| iex` |
+| 1 | **Script universal** | Linux / macOS — el más rápido | `curl -fsSL https://raw.githubusercontent.com/juampipey32/RefugIA-OS/main/refugia.sh \| bash` |
+| 2 | **Windows (PowerShell)** | Windows 10 / 11 | `irm https://raw.githubusercontent.com/juampipey32/RefugIA-OS/main/setup.ps1 \| iex` |
 | 3 | **Docker Compose** | Aislado y reproducible | `docker compose up --build` |
 | 4 | **npm / Node** | Desarrolladores Node | `npm install && npm start` |
 | 5 | **Makefile** | Un target para cada cosa | `make install && make start` |
@@ -354,11 +354,11 @@ Detecta Docker (lo usa si está), o instala de forma nativa: Python, Ollama, dep
 
 ```bash
 # Remoto (sin clonar)
-curl -fsSL https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/refugia.sh | bash
+curl -fsSL https://raw.githubusercontent.com/juampipey32/RefugIA-OS/main/refugia.sh | bash
 
 # O después de clonar el repo
-git clone https://github.com/juampipey32/apocalipsis-agent.git
-cd apocalipsis-agent
+git clone https://github.com/juampipey32/RefugIA-OS.git
+cd RefugIA-OS
 ./refugia.sh
 ```
 
@@ -369,7 +369,7 @@ También existe `./install.sh`, un instalador solo-nativo (sin auto-detección d
 Abrí PowerShell y ejecutá:
 
 ```powershell
-irm https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/setup.ps1 | iex
+irm https://raw.githubusercontent.com/juampipey32/RefugIA-OS/main/setup.ps1 | iex
 ```
 
 Instala Python 3.12, Git y Ollama, clona el repo, configura todo y arranca el servidor. (En Windows también podés usar el **método 4** si ya tenés Node, o **WSL** + método 1.)
@@ -379,8 +379,8 @@ Instala Python 3.12, Git y Ollama, clona el repo, configura todo y arranca el se
 Levanta RefugIA **y** Ollama en contenedores — solo necesitás Docker.
 
 ```bash
-git clone https://github.com/juampipey32/apocalipsis-agent.git
-cd apocalipsis-agent
+git clone https://github.com/juampipey32/RefugIA-OS.git
+cd RefugIA-OS
 docker compose up --build        # agregá -d para correr en segundo plano
 ```
 
@@ -391,8 +391,8 @@ El primer arranque baja el modelo (~2–4 GB) a un volumen; después es offline.
 El `npm install` corre un `postinstall` que crea el venv de Python, instala las dependencias, detecta tu hardware, baja el mejor modelo de Ollama e indexa los manuales.
 
 ```bash
-git clone https://github.com/juampipey32/apocalipsis-agent.git
-cd apocalipsis-agent
+git clone https://github.com/juampipey32/RefugIA-OS.git
+cd RefugIA-OS
 npm install            # setup completo vía postinstall
 npm start              # arranca el servidor
 ```
@@ -417,8 +417,8 @@ make clean       # borra venv + cache de la base vectorial
 Para control total o para depurar:
 
 ```bash
-git clone https://github.com/juampipey32/apocalipsis-agent.git
-cd apocalipsis-agent
+git clone https://github.com/juampipey32/RefugIA-OS.git
+cd RefugIA-OS
 
 # 1) Instalá Ollama (https://ollama.com/download) y bajá un modelo
 ollama pull phi3
@@ -508,9 +508,9 @@ REFUGIA_MODEL=llama3 REFUGIA_HOST=0.0.0.0 ./refugia start
 
 Hecho para cuando todo lo demás falle.
 
-[![GitHub Stars](https://img.shields.io/github/stars/juampipey32/apocalipsis-agent?style=social)](https://github.com/juampipey32/apocalipsis-agent)
-[![GitHub Forks](https://img.shields.io/github/forks/juampipey32/apocalipsis-agent?style=social)](https://github.com/juampipey32/apocalipsis-agent)
+[![GitHub Stars](https://img.shields.io/github/stars/juampipey32/RefugIA-OS?style=social)](https://github.com/juampipey32/RefugIA-OS)
+[![GitHub Forks](https://img.shields.io/github/forks/juampipey32/RefugIA-OS?style=social)](https://github.com/juampipey32/RefugIA-OS)
 
-**[Reportar Bug](https://github.com/juampipey32/apocalipsis-agent/issues) · [Sugerir Feature](https://github.com/juampipey32/apocalipsis-agent/issues) · [Discord](#)**
+**[Reportar Bug](https://github.com/juampipey32/RefugIA-OS/issues) · [Sugerir Feature](https://github.com/juampipey32/RefugIA-OS/issues) · [Discord](#)**
 
 </div>

@@ -2,7 +2,7 @@
 # RefugIA OS — Windows One-Shot Installer (PowerShell)
 # ============================================================
 # ONE COMMAND to install and run RefugIA OS:
-#   irm https://raw.githubusercontent.com/juampipey32/apocalipsis-agent/main/setup.ps1 | iex
+#   irm https://raw.githubusercontent.com/juampipey32/RefugIA-OS/main/setup.ps1 | iex
 #
 # This script installs: Python 3.12, Git, Ollama, clones the
 # repo, creates venv, installs deps, indexes manuals, and
@@ -100,13 +100,13 @@ if (Get-Command git -ErrorAction SilentlyContinue) {
 # ============================================================
 Write-Amber "━━━ 3/6  Repository ━━━"
 
-$repoDir = "$HOME\apocalipsis-agent"
+$repoDir = "$HOME\RefugIA-OS"
 
 if (Test-Path "$repoDir\src\agente_api.py") {
     Write-OK "Repository already exists at $repoDir"
 } else {
     Write-Info "Cloning repository..."
-    git clone https://github.com/juampipey32/apocalipsis-agent.git "$repoDir"
+    git clone https://github.com/juampipey32/RefugIA-OS.git "$repoDir"
     Write-OK "Repository cloned"
 }
 
