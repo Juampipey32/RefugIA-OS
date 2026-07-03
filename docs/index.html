@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>RefugIA — Guía de Emergencia Offline</title>
+<meta name="description" content="Guía de emergencia para terremotos y supervivencia. Funciona sin internet después de la primera carga. Comparte el link: puede ayudar a alguien.">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icon.svg">
+<meta name="theme-color" content="#111418">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="RefugIA">
+<meta property="og:title" content="RefugIA — Guía de Emergencia Offline">
+<meta property="og:description" content="Qué hacer en un terremoto, primeros auxilios, agua segura. Funciona sin internet. Compártelo.">
+<style>
+/* ============ BASE ============ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+    --bg: #111418; --panel: #1a1f26; --panel-2: #222933;
+    --text: #eef1f4; --text-dim: #9aa4af; --border: #323b46;
+    --red: #ff5a52; --red-bg: #3a1512;
+    --amber: #ffc04d; --amber-bg: #33270e;
+    --green: #4cd97b; --green-bg: #12301c;
+    --blue: #5ab0ff;
+    --radius: 12px;
+}
+html { -webkit-text-size-adjust: 100%; }
+body {
+    background: var(--bg); color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 16px; line-height: 1.55;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom));
+}
+button { font-family: inherit; cursor: pointer; }
+
+/* ============ HEADER ============ */
+header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px; background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 20;
+}
+header .logo { font-size: 22px; }
+header h1 { font-size: 18px; font-weight: 700; flex: 1; }
+header h1 small { display: block; font-size: 11px; font-weight: 400; color: var(--text-dim); }
+.net-badge {
+    font-size: 11px; padding: 4px 10px; border-radius: 20px;
+    background: var(--green-bg); color: var(--green); border: 1px solid var(--green);
+    white-space: nowrap;
+}
+.net-badge.offline { background: var(--amber-bg); color: var(--amber); border-color: var(--amber); }
+
+/* ============ LAYOUT ============ */
+main { max-width: 720px; margin: 0 auto; padding: 16px; }
+.view { display: none; }
+.view.active { display: block; animation: fadeIn .18s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* ============ NAV INFERIOR ============ */
+nav {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 30;
+    display: flex; background: var(--panel);
+    border-top: 1px solid var(--border);
+    padding-bottom: env(safe-area-inset-bottom);
+}
+nav button {
+    flex: 1; padding: 8px 4px 10px; background: none; border: none;
+    color: var(--text-dim); font-size: 11px; line-height: 1.3;
+}
+nav button .ic { display: block; font-size: 20px; margin-bottom: 2px; }
+nav button.active { color: var(--text); }
+nav button.active .ic { transform: scale(1.12); }
+
+/* ============ INICIO / EMERGENCIA ============ */
+.alert-911 {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--red-bg); border: 1px solid var(--red);
+    border-radius: var(--radius); padding: 14px; margin-bottom: 16px;
+}
+.alert-911 .txt { flex: 1; font-size: 14px; }
+.alert-911 .txt strong { color: var(--red); }
+.alert-911 a {
+    background: var(--red); color: #fff; text-decoration: none;
+    font-weight: 700; font-size: 18px; padding: 10px 18px; border-radius: 10px;
+    white-space: nowrap;
+}
+.quick-title { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); margin: 18px 0 10px; }
+.quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.quick-grid button {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 12px; text-align: left;
+    color: var(--text); font-size: 15px; font-weight: 600; line-height: 1.35;
+    min-height: 74px;
+}
+.quick-grid button .ic { display: block; font-size: 22px; margin-bottom: 6px; }
+.quick-grid button.urgent { border-color: var(--red); background: var(--red-bg); }
+.quick-grid button:active { transform: scale(.98); }
+.share-box {
+    margin-top: 22px; background: var(--panel); border: 1px dashed var(--border);
+    border-radius: var(--radius); padding: 14px; font-size: 14px; color: var(--text-dim);
+}
+.share-box button {
+    margin-top: 10px; width: 100%; padding: 12px; border-radius: 10px;
+    border: 1px solid var(--blue); background: transparent; color: var(--blue);
+    font-size: 15px; font-weight: 600;
+}
+.offline-note { margin-top: 14px; font-size: 13px; color: var(--text-dim); text-align: center; }
+.offline-note strong { color: var(--green); }
+
+/* ============ BÚSQUEDA ============ */
+.search-bar { position: sticky; top: 60px; z-index: 10; background: var(--bg); padding: 4px 0 10px; }
+.search-bar input {
+    width: 100%; padding: 14px 16px; font-size: 16px;
+    background: var(--panel-2); color: var(--text);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    outline: none;
+}
+.search-bar input:focus { border-color: var(--blue); }
+.search-hint { font-size: 13px; color: var(--text-dim); margin: 8px 2px; }
+.result {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px; margin-bottom: 10px;
+    cursor: pointer;
+}
+.result .crumb { font-size: 12px; color: var(--text-dim); margin-bottom: 4px; }
+.result h3 { font-size: 16px; margin-bottom: 4px; }
+.result p { font-size: 14px; color: var(--text-dim); }
+.result mark { background: var(--amber); color: #111; border-radius: 3px; padding: 0 2px; }
+
+/* ============ MANUALES ============ */
+.manual-card {
+    display: flex; align-items: center; gap: 12px; width: 100%;
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px; margin-bottom: 10px;
+    color: var(--text); text-align: left; font-size: 16px; font-weight: 600;
+}
+.manual-card .ic { font-size: 26px; }
+.manual-card .n { margin-left: auto; font-size: 12px; color: var(--text-dim); font-weight: 400; white-space: nowrap; }
+.back-btn {
+    background: none; border: none; color: var(--blue); font-size: 15px;
+    padding: 4px 0 12px; display: inline-flex; align-items: center; gap: 6px;
+}
+.section-item {
+    width: 100%; background: var(--panel); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px; margin-bottom: 8px;
+    color: var(--text); text-align: left; font-size: 15px; font-weight: 600;
+}
+.reader h2 { font-size: 20px; margin: 4px 0 2px; }
+.reader .crumb { font-size: 13px; color: var(--text-dim); margin-bottom: 14px; }
+.reader-body { font-size: 16px; }
+.reader-body p { margin: 10px 0; }
+.reader-body ul, .reader-body ol { margin: 10px 0 10px 22px; }
+.reader-body li { margin: 7px 0; }
+.reader-body strong { color: var(--amber); }
+.reader-nav { display: flex; gap: 10px; margin-top: 20px; }
+.reader-nav button {
+    flex: 1; padding: 12px; border-radius: 10px; font-size: 14px;
+    background: var(--panel); color: var(--text); border: 1px solid var(--border);
+}
+.reader-nav button:disabled { opacity: .35; }
+
+/* ============ RECURSOS / INVENTARIO ============ */
+.inv-intro { font-size: 14px; color: var(--text-dim); margin-bottom: 14px; }
+.inv-card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px; margin-bottom: 12px;
+}
+.inv-card .top { display: flex; align-items: center; gap: 10px; }
+.inv-card .ic { font-size: 24px; }
+.inv-card .name { font-weight: 600; flex: 1; }
+.inv-card .name small { display: block; font-weight: 400; font-size: 12px; color: var(--text-dim); }
+.stepper { display: flex; align-items: center; gap: 4px; }
+.stepper button {
+    width: 44px; height: 44px; font-size: 22px; font-weight: 700;
+    background: var(--panel-2); color: var(--text);
+    border: 1px solid var(--border); border-radius: 10px;
+}
+.stepper .val { min-width: 64px; text-align: center; font-size: 20px; font-weight: 700; }
+.stepper .val small { display: block; font-size: 11px; font-weight: 400; color: var(--text-dim); }
+.inv-status { margin-top: 10px; font-size: 13px; border-radius: 8px; padding: 8px 10px; }
+.inv-status.ok { background: var(--green-bg); color: var(--green); }
+.inv-status.warn { background: var(--amber-bg); color: var(--amber); }
+.inv-status.bad { background: var(--red-bg); color: var(--red); }
+.kit-list { list-style: none; }
+.kit-list li {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 4px; border-bottom: 1px solid var(--border);
+    font-size: 15px; cursor: pointer; user-select: none;
+}
+.kit-list input[type=checkbox] { width: 22px; height: 22px; accent-color: var(--green); flex-shrink: 0; }
+.kit-list li.done span { text-decoration: line-through; color: var(--text-dim); }
+
+@media (min-width: 720px) {
+    .quick-grid { grid-template-columns: repeat(3, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<header>
+    <span class="logo">🛡️</span>
+    <h1>RefugIA<small>Guía de emergencia · funciona sin internet</small></h1>
+    <span class="net-badge" id="netBadge">● En línea</span>
+</header>
+
+<main>
+
+<!-- ================= INICIO ================= -->
+<section class="view active" id="view-inicio">
+    <div class="alert-911">
+        <div class="txt"><strong>Emergencia en Venezuela:</strong> llama al <strong>911</strong> (VEN911). Si la llamada no sale, intenta con SMS o WhatsApp: suelen salir aunque la red esté saturada.</div>
+        <a href="tel:911">📞 911</a>
+    </div>
+
+    <div class="quick-title">Acceso rápido</div>
+    <div class="quick-grid" id="quickGrid"></div>
+
+    <div class="quick-title">Manuales completos</div>
+    <div id="homeManuales"></div>
+
+    <div class="share-box">
+        Esta guía puede ayudar a alguien más. Compártela: al abrir el link una vez, queda guardada en el teléfono y funciona <strong>sin internet</strong>.
+        <button id="shareBtn">📤 Compartir esta guía</button>
+    </div>
+    <p class="offline-note" id="offlineNote"></p>
+</section>
+
+<!-- ================= BUSCAR ================= -->
+<section class="view" id="view-buscar">
+    <div class="search-bar">
+        <input type="search" id="searchInput" placeholder="Buscar: hemorragia, agua, réplicas, atrapado…" autocomplete="off">
+    </div>
+    <div class="search-hint" id="searchHint">Escribe qué necesitas. La búsqueda es instantánea y funciona sin internet.</div>
+    <div id="searchResults"></div>
+</section>
+
+<!-- ================= MANUALES ================= -->
+<section class="view" id="view-manuales">
+    <div id="manualesRoot"></div>
+</section>
+
+<!-- ================= RECURSOS ================= -->
+<section class="view" id="view-recursos">
+    <p class="inv-intro">Registra lo que tienen y para cuántas personas. Se guarda en este teléfono, sin internet. Te avisa cuántos días les alcanza.</p>
+    <div id="invRoot"></div>
+
+    <div class="quick-title">Kit de emergencia — marca lo que ya tienes</div>
+    <ul class="kit-list" id="kitList"></ul>
+</section>
+
+</main>
+
+<nav id="mainNav">
+    <button data-view="inicio" class="active"><span class="ic">🚨</span>Emergencia</button>
+    <button data-view="buscar"><span class="ic">🔍</span>Buscar</button>
+    <button data-view="manuales"><span class="ic">📚</span>Manuales</button>
+    <button data-view="recursos"><span class="ic">📦</span>Recursos</button>
+</nav>
+
+<script src="./data.js"></script>
+<script>
+'use strict';
+/* ============================================================
+   RefugIA Web de Emergencia — 100% estática, sin dependencias.
+   Los datos vienen de data.js (generado desde manuales/*.md).
+   ============================================================ */
+
+const DATA = window.REFUGIA_DATA || [];
+
+/* ---------- Utilidades ---------- */
+const $ = (sel) => document.querySelector(sel);
+
+function esc(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// Normaliza para búsqueda: minúsculas y sin acentos.
+function norm(s) {
+    return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+// Mini-renderer de Markdown (negritas, listas, párrafos). Suficiente
+// para los manuales; evita traer una librería externa.
+function mdRender(texto) {
+    const lines = texto.split('\n');
+    let html = '', list = null; // list: 'ul' | 'ol' | null
+
+    const closeList = () => { if (list) { html += `</${list}>`; list = null; } };
+    const inline = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+    for (const raw of lines) {
+        const line = raw.trim();
+        if (!line) { closeList(); continue; }
+        const mUl = line.match(/^[-*]\s+(.*)/);
+        const mOl = line.match(/^\d+[.)]\s+(.*)/);
+        if (mUl) {
+            if (list !== 'ul') { closeList(); html += '<ul>'; list = 'ul'; }
+            html += `<li>${inline(mUl[1])}</li>`;
+        } else if (mOl) {
+            if (list !== 'ol') { closeList(); html += '<ol>'; list = 'ol'; }
+            html += `<li>${inline(mOl[1])}</li>`;
+        } else if (line.startsWith('###')) {
+            closeList(); html += `<p><strong>${inline(line.replace(/^#+\s*/, ''))}</strong></p>`;
+        } else {
+            closeList(); html += `<p>${inline(line)}</p>`;
+        }
+    }
+    closeList();
+    return html;
+}
+
+/* ---------- Navegación entre vistas ---------- */
+function showView(name) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    $('#view-' + name).classList.add('active');
+    document.querySelectorAll('nav button').forEach(b =>
+        b.classList.toggle('active', b.dataset.view === name));
+    window.scrollTo(0, 0);
+    if (name === 'buscar') setTimeout(() => $('#searchInput').focus(), 60);
+}
+$('#mainNav').addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-view]');
+    if (btn) showView(btn.dataset.view);
+});
+
+/* ---------- Acceso rápido (inicio) ---------- */
+// Cada atajo apunta a una sección concreta: [idManual, fragmento del título de sección]
+const QUICK = [
+    { ic: '🌍', label: 'Está temblando AHORA', m: 'terremotos', s: 'Durante el temblor', urgent: true },
+    { ic: '🧱', label: 'Persona atrapada', m: 'terremotos', s: 'personas atrapadas', urgent: true },
+    { ic: '🩸', label: 'Hemorragias y heridas', m: 'terremotos', s: 'Primeros auxilios frecuentes', urgent: true },
+    { ic: '〰️', label: 'Réplicas: qué hacer', m: 'terremotos', s: 'Réplicas' },
+    { ic: '💧', label: 'Agua segura', m: 'terremotos', s: 'Agua segura' },
+    { ic: '📵', label: 'Sin señal / avisar que estás bien', m: 'terremotos', s: 'Comunicación' },
+];
+
+function findSection(manualId, tituloParcial) {
+    const m = DATA.find(x => x.id === manualId);
+    if (!m) return null;
+    const i = m.secciones.findIndex(s => norm(s.titulo).includes(norm(tituloParcial)));
+    return i >= 0 ? { m, i } : null;
+}
+
+function renderQuick() {
+    $('#quickGrid').innerHTML = QUICK.map((q, idx) =>
+        `<button data-q="${idx}" ${q.urgent ? 'class="urgent"' : ''}><span class="ic">${q.ic}</span>${q.label}</button>`
+    ).join('');
+    $('#quickGrid').addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-q]');
+        if (!btn) return;
+        const q = QUICK[+btn.dataset.q];
+        const hit = findSection(q.m, q.s);
+        if (hit) { openReader(hit.m.id, hit.i); showView('manuales'); }
+    });
+}
+
+function renderHomeManuales() {
+    $('#homeManuales').innerHTML = DATA.map(m =>
+        `<button class="manual-card" data-m="${m.id}"><span class="ic">${m.icono}</span>${esc(m.titulo)}<span class="n">${m.secciones.length} temas</span></button>`
+    ).join('');
+    $('#homeManuales').addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-m]');
+        if (!btn) return;
+        openManual(btn.dataset.m); showView('manuales');
+    });
+}
+
+/* ---------- Manuales: lista → secciones → lectura ---------- */
+const root = $('#manualesRoot');
+
+function openIndex() {
+    root.innerHTML = DATA.map(m =>
+        `<button class="manual-card" data-m="${m.id}"><span class="ic">${m.icono}</span>${esc(m.titulo)}<span class="n">${m.secciones.length} temas</span></button>`
+    ).join('');
+}
+
+function openManual(id) {
+    const m = DATA.find(x => x.id === id);
+    if (!m) return openIndex();
+    root.innerHTML =
+        `<button class="back-btn" data-back="index">← Todos los manuales</button>` +
+        `<h2 style="margin-bottom:12px">${m.icono} ${esc(m.titulo)}</h2>` +
+        m.secciones.map((s, i) =>
+            `<button class="section-item" data-sec="${i}">${esc(s.titulo)}</button>`
+        ).join('');
+    root.dataset.manual = id;
+}
+
+function openReader(id, i) {
+    const m = DATA.find(x => x.id === id);
+    if (!m || !m.secciones[i]) return;
+    const s = m.secciones[i];
+    root.dataset.manual = id;
+    root.innerHTML =
+        `<button class="back-btn" data-back="manual">← ${esc(m.titulo)}</button>` +
+        `<div class="reader">
+            <h2>${esc(s.titulo)}</h2>
+            <div class="crumb">${m.icono} ${esc(m.titulo)}</div>
+            <div class="reader-body">${mdRender(s.texto)}</div>
+            <div class="reader-nav">
+                <button data-go="${i - 1}" ${i === 0 ? 'disabled' : ''}>← Anterior</button>
+                <button data-go="${i + 1}" ${i === m.secciones.length - 1 ? 'disabled' : ''}>Siguiente →</button>
+            </div>
+        </div>`;
+    window.scrollTo(0, 0);
+}
+
+root.addEventListener('click', (e) => {
+    const back = e.target.closest('[data-back]');
+    if (back) {
+        return back.dataset.back === 'index' ? openIndex() : openManual(root.dataset.manual);
+    }
+    const sec = e.target.closest('[data-sec]');
+    if (sec) return openReader(root.dataset.manual, +sec.dataset.sec);
+    const go = e.target.closest('[data-go]');
+    if (go && !go.disabled) return openReader(root.dataset.manual, +go.dataset.go);
+});
+
+/* ---------- Búsqueda instantánea ---------- */
+// Índice plano: una entrada por sección, con texto normalizado precalculado.
+const SEARCH_INDEX = [];
+DATA.forEach(m => m.secciones.forEach((s, i) => SEARCH_INDEX.push({
+    m: m.id, i, manual: m.titulo, icono: m.icono, titulo: s.titulo,
+    texto: s.texto, nTitulo: norm(s.titulo), nTexto: norm(s.texto),
+})));
+
+function buscar(q) {
+    const terms = norm(q).split(/\s+/).filter(t => t.length >= 2);
+    if (!terms.length) return [];
+    const res = [];
+    for (const e of SEARCH_INDEX) {
+        let score = 0;
+        for (const t of terms) {
+            if (e.nTitulo.includes(t)) score += 6;
+            let pos = -1, hits = 0;
+            while ((pos = e.nTexto.indexOf(t, pos + 1)) !== -1 && hits < 5) { hits++; }
+            score += hits;
+        }
+        if (score > 0) res.push({ e, score });
+    }
+    return res.sort((a, b) => b.score - a.score).slice(0, 12);
+}
+
+// Fragmento del texto alrededor de la primera coincidencia, con resaltado.
+function snippet(e, terms) {
+    let pos = -1;
+    for (const t of terms) { pos = e.nTexto.indexOf(t); if (pos !== -1) break; }
+    if (pos === -1) pos = 0;
+    const start = Math.max(0, pos - 60);
+    let frag = e.texto.slice(start, start + 180).replace(/[#*\-]/g, ' ').replace(/\s+/g, ' ').trim();
+    frag = esc((start > 0 ? '…' : '') + frag + '…');
+    for (const t of terms) {
+        if (t.length < 2) continue;
+        frag = frag.replace(new RegExp('(' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>');
+    }
+    return frag;
+}
+
+$('#searchInput').addEventListener('input', (e) => {
+    const q = e.target.value.trim();
+    const out = $('#searchResults');
+    if (q.length < 2) {
+        $('#searchHint').style.display = '';
+        out.innerHTML = '';
+        return;
+    }
+    $('#searchHint').style.display = 'none';
+    const terms = norm(q).split(/\s+/).filter(t => t.length >= 2);
+    const res = buscar(q);
+    out.innerHTML = res.length
+        ? res.map(r =>
+            `<div class="result" data-m="${r.e.m}" data-i="${r.e.i}">
+                <div class="crumb">${r.e.icono} ${esc(r.e.manual)}</div>
+                <h3>${esc(r.e.titulo)}</h3>
+                <p>${snippet(r.e, terms)}</p>
+            </div>`).join('')
+        : `<div class="search-hint">Sin resultados para “${esc(q)}”. Prueba con otra palabra: <em>agua, herida, fuego, refugio, temblor…</em></div>`;
+});
+
+$('#searchResults').addEventListener('click', (e) => {
+    const r = e.target.closest('.result');
+    if (!r) return;
+    openReader(r.dataset.m, +r.dataset.i);
+    showView('manuales');
+});
+
+/* ---------- Recursos: inventario con días restantes ---------- */
+const INV_KEY = 'refugia_inv_v1';
+const INV_DEF = { personas: 2, agua: 0, comida: 0 };
+
+function invLoad() {
+    try { return { ...INV_DEF, ...JSON.parse(localStorage.getItem(INV_KEY) || '{}') }; }
+    catch { return { ...INV_DEF }; }
+}
+function invSave(inv) { localStorage.setItem(INV_KEY, JSON.stringify(inv)); }
+
+function invStatus(dias) {
+    if (dias >= 3) return ['ok', `Alcanza para ~${Math.floor(dias)} días. Bien.`];
+    if (dias >= 1) return ['warn', `Alcanza para ~${Math.floor(dias)} día(s). Consigue más pronto.`];
+    return ['bad', 'Menos de 1 día. Prioriza conseguir más HOY. Mira el manual de agua.'];
+}
+
+function renderInv() {
+    const inv = invLoad();
+    const diasAgua = inv.personas > 0 ? inv.agua / (2 * inv.personas) : 0;
+    const diasComida = inv.personas > 0 ? inv.comida / inv.personas : 0;
+    const [ca, ta] = invStatus(diasAgua);
+    const [cc, tc] = invStatus(diasComida);
+
+    const card = (ic, name, sub, key, val, unit, status) => `
+        <div class="inv-card">
+            <div class="top">
+                <span class="ic">${ic}</span>
+                <span class="name">${name}<small>${sub}</small></span>
+                <span class="stepper">
+                    <button data-inv="${key}" data-d="-1">−</button>
+                    <span class="val">${val}<small>${unit}</small></span>
+                    <button data-inv="${key}" data-d="1">+</button>
+                </span>
+            </div>
+            ${status || ''}
+        </div>`;
+
+    $('#invRoot').innerHTML =
+        card('👥', 'Personas', 'en tu grupo o refugio', 'personas', inv.personas, 'personas') +
+        card('💧', 'Agua potable', 'mínimo 2 litros por persona al día', 'agua', inv.agua, 'litros',
+            inv.agua > 0 || inv.personas > 0 ? `<div class="inv-status ${ca}">${ta}</div>` : '') +
+        card('🥫', 'Comida', 'raciones (1 ración = 1 persona 1 día)', 'comida', inv.comida, 'raciones',
+            inv.comida > 0 || inv.personas > 0 ? `<div class="inv-status ${cc}">${tc}</div>` : '');
+}
+
+$('#invRoot').addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-inv]');
+    if (!btn) return;
+    const inv = invLoad();
+    const key = btn.dataset.inv;
+    const min = key === 'personas' ? 1 : 0;
+    inv[key] = Math.max(min, inv[key] + (+btn.dataset.d));
+    invSave(inv);
+    renderInv();
+});
+
+/* ---------- Kit de emergencia (checklist) ---------- */
+const KIT_KEY = 'refugia_kit_v1';
+const KIT = [
+    'Agua embotellada (2 L por persona por día)',
+    'Comida que no necesita cocción (latas, galletas)',
+    'Linterna y pilas de repuesto',
+    'Botiquín y medicinas personales',
+    'Radio a pilas',
+    'Silbato (para pedir ayuda)',
+    'Documentos importantes (o fotos en el teléfono)',
+    'Cargador portátil / power bank',
+    'Efectivo en billetes pequeños',
+    'Zapatos cerrados resistentes junto a la cama',
+    'Cloro doméstico sin aroma (para desinfectar agua)',
+    'Abrigo o manta por persona',
+];
+
+function renderKit() {
+    let done;
+    try { done = new Set(JSON.parse(localStorage.getItem(KIT_KEY) || '[]')); }
+    catch { done = new Set(); }
+    $('#kitList').innerHTML = KIT.map((item, i) =>
+        `<li data-k="${i}" class="${done.has(i) ? 'done' : ''}">
+            <input type="checkbox" ${done.has(i) ? 'checked' : ''}>
+            <span>${item}</span>
+        </li>`).join('');
+}
+$('#kitList').addEventListener('click', (e) => {
+    const li = e.target.closest('li[data-k]');
+    if (!li) return;
+    let done;
+    try { done = new Set(JSON.parse(localStorage.getItem(KIT_KEY) || '[]')); }
+    catch { done = new Set(); }
+    const i = +li.dataset.k;
+    done.has(i) ? done.delete(i) : done.add(i);
+    localStorage.setItem(KIT_KEY, JSON.stringify([...done]));
+    renderKit();
+});
+
+/* ---------- Compartir ---------- */
+$('#shareBtn').addEventListener('click', async () => {
+    const url = location.href.split('#')[0];
+    const text = 'Guía de emergencia RefugIA: qué hacer en un terremoto, primeros auxilios y agua segura. Funciona SIN internet después de abrirla una vez: ' + url;
+    if (navigator.share) {
+        try { await navigator.share({ title: 'RefugIA — Guía de Emergencia', text, url }); } catch {}
+    } else {
+        try {
+            await navigator.clipboard.writeText(text);
+            $('#shareBtn').textContent = '✅ Link copiado — pégalo en WhatsApp';
+            setTimeout(() => $('#shareBtn').textContent = '📤 Compartir esta guía', 2500);
+        } catch {}
+    }
+});
+
+/* ---------- Estado de red + Service Worker ---------- */
+function updateNet() {
+    const b = $('#netBadge');
+    if (navigator.onLine) { b.textContent = '● En línea'; b.classList.remove('offline'); }
+    else { b.textContent = '● Sin internet — la guía sigue funcionando'; b.classList.add('offline'); }
+}
+window.addEventListener('online', updateNet);
+window.addEventListener('offline', updateNet);
+updateNet();
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').then(() => {
+        $('#offlineNote').innerHTML = '✔ Guía guardada en este dispositivo: <strong>ya funciona sin internet</strong>.';
+    }).catch(() => {});
+}
+
+/* ---------- Arranque ---------- */
+renderQuick();
+renderHomeManuales();
+openIndex();
+renderInv();
+renderKit();
+</script>
+</body>
+</html>

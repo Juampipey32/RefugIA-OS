@@ -23,6 +23,21 @@
 
 ---
 
+## 🚨 Emergencia AHORA — úsala sin instalar nada
+
+> **🌍 Guía de emergencia web (terremotos, primeros auxilios, agua segura):**
+>
+> ### 👉 [juampipey32.github.io/apocalipsis-agent](https://juampipey32.github.io/apocalipsis-agent/) 👈
+>
+> - **No requiere instalación.** Se abre en cualquier teléfono o computadora.
+> - **Funciona sin internet** después de abrirla una vez (guárdala ANTES de necesitarla).
+> - **Compártela por WhatsApp:** el link puede salvarle tiempo crítico a alguien.
+> - Incluye: qué hacer durante y después de un terremoto, réplicas, personas atrapadas, primeros auxilios, agua segura, inventario de recursos y kit de emergencia.
+>
+> La guía se genera desde los manuales de `manuales/` con `python scripts/build_web.py`. Todo lo que sigue abajo (servidor local + IA) es la versión avanzada y **opcional**.
+
+---
+
 ## 🚀 Installation — Pick Your Method
 
 Every method ends the same way: the server runs at **[http://localhost:8000](http://localhost:8000)** and works 100% offline afterwards.
@@ -263,6 +278,10 @@ apocalipsis-agent/
 │   ├── agente_api.py      # FastAPI backend + RAG
 │   ├── indexador.py       # PDF → ChromaDB indexer
 │   └── db/                # ChromaDB vectorstore (generated)
+├── docs/                  # 🚨 Emergency web guide (GitHub Pages, no install)
+│   ├── index.html         # Static app: guide + search + inventory
+│   ├── data.js            # Generated from manuales/ (scripts/build_web.py)
+│   └── sw.js              # Offline-first service worker
 ├── frontend/
 │   ├── index.html         # Single-file SPA (CRT theme)
 │   ├── manifest.json      # PWA manifest
@@ -308,6 +327,10 @@ MIT — Use this code to survive.
 ## 🇪🇸 Español
 
 </div>
+
+### 🚨 ¿Emergencia? Usá la guía web sin instalar nada
+
+**[juampipey32.github.io/apocalipsis-agent](https://juampipey32.github.io/apocalipsis-agent/)** — se abre en cualquier teléfono, funciona **sin internet** después de la primera carga, y se comparte por WhatsApp. Qué hacer en un terremoto, réplicas, primeros auxilios, agua segura, inventario y kit de emergencia. Lo que sigue abajo es la versión avanzada con IA local (opcional).
 
 ### Instalación — Elegí tu método
 

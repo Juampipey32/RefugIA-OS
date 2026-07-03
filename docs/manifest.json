@@ -1,0 +1,19 @@
+{
+    "name": "RefugIA — Guía de Emergencia Offline",
+    "short_name": "RefugIA",
+    "description": "Guía de emergencia para terremotos y supervivencia. Funciona sin internet.",
+    "lang": "es",
+    "start_url": "./",
+    "scope": "./",
+    "display": "standalone",
+    "background_color": "#111418",
+    "theme_color": "#111418",
+    "icons": [
+        {
+            "src": "icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ]
+}
