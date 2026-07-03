@@ -33,6 +33,7 @@
 > - **Funciona sin internet** después de abrirla una vez (guárdala ANTES de necesitarla).
 > - **Compártela por WhatsApp:** el link puede salvarle tiempo crítico a alguien.
 > - Incluye: qué hacer durante y después de un terremoto, réplicas, personas atrapadas, primeros auxilios, agua segura, inventario de recursos y kit de emergencia.
+> - **[🖨️ Cartel con QR para imprimir/compartir](https://juampipey32.github.io/apocalipsis-agent/cartel-qr.png)** — pégalo en refugios, farmacias, carteleras.
 >
 > La guía se genera desde los manuales de `manuales/` con `python scripts/build_web.py`. Todo lo que sigue abajo (servidor local + IA) es la versión avanzada y **opcional**.
 

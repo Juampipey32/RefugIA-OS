@@ -5,7 +5,7 @@
 // en segundo plano cuando hay red (stale-while-revalidate).
 // ============================================================
 
-const CACHE = 'refugia-web-v1';
+const CACHE = 'refugia-web-v2';
 
 const ASSETS = [
     './',
@@ -13,6 +13,7 @@ const ASSETS = [
     './data.js',
     './manifest.json',
     './icon.svg',
+    './cartel-qr.png',
 ];
 
 self.addEventListener('install', (event) => {
