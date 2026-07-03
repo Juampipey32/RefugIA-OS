@@ -5,7 +5,7 @@
 // en segundo plano cuando hay red (stale-while-revalidate).
 // ============================================================
 
-const CACHE = 'refugia-web-v2';
+const CACHE = 'refugia-web-v3';
 
 const ASSETS = [
     './',
