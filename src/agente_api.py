@@ -464,11 +464,15 @@ async def serve_sw():
 @app.get("/icons/{filename}")
 async def serve_icon(filename: str):
     """Sirve los iconos de la PWA."""
-    path = FRONTEND_DIR / "icons" / filename
-    if path.exists():
-        media_type = "image/svg+xml" if filename.endswith(".svg") else "image/png"
+    # Anti path-traversal: Starlette decodifica %2F/%5C después del ruteo,
+    # así que 'filename' puede llegar con '../'. Nos quedamos solo con el
+    # nombre base y verificamos que el archivo resuelto siga dentro de icons/.
+    icons_dir = (FRONTEND_DIR / "icons").resolve()
+    path = (icons_dir / Path(filename).name).resolve()
+    if path.parent == icons_dir and path.is_file():
+        media_type = "image/svg+xml" if path.suffix == ".svg" else "image/png"
         return FileResponse(str(path), media_type=media_type)
-    return {"error": f"Icon {filename} not found"}
+    return {"error": "Icon not found"}
 
 
 # ============================================================
