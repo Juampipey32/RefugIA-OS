@@ -32,5 +32,5 @@ sentence-transformers==3.3.1
 pypdf==5.1.0
 
 # --- Utilidades ---
-python-multipart==0.0.20
+python-multipart==0.0.31
 pydantic==2.10.4
