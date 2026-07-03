@@ -27,7 +27,7 @@ uvicorn[standard]==0.34.0
 langchain==0.3.30
 langchain-core==0.3.86
 langchain-community==0.3.31
-langchain-text-splitters==0.3.11
+langchain-text-splitters==1.1.2
 langchain-ollama==0.3.10
 langchain-huggingface==0.3.1
 langsmith==0.8.18
