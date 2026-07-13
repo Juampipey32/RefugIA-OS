@@ -41,7 +41,7 @@ chromadb==0.6.3
 # transformers se fija explícito: < 4.53 arrastra una docena de CVEs
 # altos (ReDoS y deserialización insegura en loaders de modelos).
 sentence-transformers==3.3.1
-transformers==4.57.6
+transformers==5.5.0
 
 # --- Procesamiento de PDFs ---
 # pypdf 5.x acumulaba ~30 CVEs de DoS (loops infinitos / agotamiento de
